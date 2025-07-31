@@ -1,0 +1,337 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>InstaImpulse</title>
+  <link href="https://fonts.googleapis.com/css?family=Helvetica+Neue:400,500&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --bg-default: #121212;
+      --bg-card: #1e1e1e;
+      --bg-input: #242526;
+      --border: #333;
+      --text: #e4e6eb;
+      --text-alt: #aaa;
+      --accent1: #ffdf9e;
+      --accent2: #ffc273;
+      --accent3: #e56969;
+      --accent4: #c1558b;
+      --accent5: #8a49a1;
+      --radius: 8px;
+      --form-gap: 16px;
+    }
+
+    *,
+    *::before,
+    *::after {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    }
+
+    body {
+      background: var(--bg-default);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      padding: 20px;
+      color: var(--text);
+    }
+
+    .card {
+      display: grid;
+      grid-template-columns: 430px 700px;
+      gap: 24px;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 32px;
+      box-shadow: 0 8px 16px rgba(0, 0, 0, 0.6);
+    }
+
+    .card h2 {
+      font-size: 1.5rem;
+      font-weight: 500;
+      text-align: center;
+      margin-bottom: 24px;
+      color: var(--text);
+    }
+
+    .main-settings {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+    }
+
+    .form-field+.form-field {
+      margin-top: var(--form-gap);
+    }
+
+    .form-field label,
+    #login-status,
+    #settings-status {
+      display: inline-block;
+      font-size: 0.9rem;
+      margin-bottom: 6px;
+      color: var(--text-alt);
+    }
+
+    .form-field input,
+    .form-field textarea {
+      width: 100%;
+      padding: 10px 12px;
+      font-size: 0.95rem;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      background: var(--bg-input);
+      color: var(--text);
+      transition: border-color 0.2s;
+    }
+
+    .form-field input:focus,
+    .form-field textarea:focus {
+      outline: none;
+      border-color: var(--accent1);
+    }
+
+    .form-field ::placeholder {
+      color: var(--text-alt);
+    }
+
+    .form-field textarea {
+      resize: vertical;
+      min-height: 80px;
+    }
+
+    .intervals {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+
+    .btn {
+      display: inline-block;
+      width: 100%;
+      padding: 12px;
+      margin-top: var(--form-gap);
+      border: none;
+      border-radius: var(--radius);
+      background: linear-gradient(30deg,
+          var(--accent1) 0%,
+          var(--accent2) 25%,
+          var(--accent3) 50%,
+          var(--accent4) 75%,
+          var(--accent5) 100%);
+      color: #fff;
+      font-weight: bold;
+      font-size: 0.95rem;
+      cursor: pointer;
+      transition: filter 0.2s, transform 0.1s;
+    }
+
+    .pulsing-glow {
+      box-shadow: 0 0 20px #6c5ce7;
+      animation: pulseGlow 1s infinite;
+    }
+
+    @keyframes pulseGlow {
+      0% {
+        box-shadow: 0 0 10px #6c5ce7, 0 0 10px #6c5ce7;
+      }
+
+      50% {
+        box-shadow: 0 0 15px #a29bfe, 0 0 15px #a29bfe;
+      }
+      
+      100% {
+        box-shadow: 0 0 10px #6c5ce7, 0 0 10px #6c5ce7;
+      }
+    }
+
+    .btn:hover {
+      filter: brightness(1.2);
+    }
+
+    .btn:active {
+      transform: scale(0.98);
+    }
+
+    /* extra space below Login button */
+    #login {
+      margin-top: var(--form-gap);
+      margin-bottom: var(--form-gap);
+    }
+
+    .side-actions {
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+
+    .side-actions fieldset {
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 16px;
+      background: var(--bg-card);
+      display: flex;
+      flex-direction: column;
+    }
+
+    .side-actions legend {
+      font-size: 0.9rem;
+      font-weight: 500;
+      color: var(--text);
+      padding: 0 6px;
+    }
+
+    .side-actions .radio-group {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+      margin-bottom: 12px;
+    }
+
+    .side-actions .radio-group label {
+      font-size: 0.9rem;
+      color: var(--text-alt);
+      cursor: pointer;
+    }
+
+    .side-actions .radio-group input[type="radio"] {
+      margin-right: 6px;
+      accent-color: var(--accent5);
+      cursor: pointer;
+    }
+
+    .side-actions textarea {
+      margin-top: 12px;
+      padding: 10px;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      background: var(--bg-input);
+      color: var(--text);
+      font-size: 0.9rem;
+      min-height: 150px;
+      resize: none;
+    }
+
+    .side-actions fieldset .btn {
+      margin-top: 0;
+    }
+
+    .right-label {
+      float: right;
+    }
+
+    .icon {
+      margin-bottom: 20px;
+      display: block;
+      margin: auto;
+      width: 100px;
+      height: 100px;
+    }
+
+    #settings-status {
+      display: block;
+      text-align: center;
+      margin-top: 15px;
+    }
+
+    .blinking-text {
+      animation: blink 1s step-start infinite;
+      color: red;
+      font-weight: bold;
+    }
+
+    @keyframes blink {
+      50% {
+        opacity: 0;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <div class="card">
+    <!-- Main Settings Panel -->
+    <div class="main-settings">
+      <img src="./icon.png" alt="InstaImpulse Logo" class="icon" />
+      <h2>InstaImpulse</h2>
+      <form id="settings-form">
+        <div class="form-field">
+          <label id="login-status"></label>
+          <input type="text" id="username" name="username" placeholder="⚠️ username only" required />
+        </div>
+        <div class="form-field">
+          <input type="password" id="password" name="password" placeholder="Password" required />
+        </div>
+        <!-- Login button with extra spacing -->
+        <button class="btn" id="login">Log In🔐</button>
+        <div class="form-field">
+          <label for="similar-pages">Similar Pages (comma-separated)</label>
+          <textarea id="similar-pages" name="similar-pages"
+            placeholder="usernames from competitors or neighboring businesses"></textarea>
+        </div>
+        <div class="form-field">
+          <label>Follow Interval (seconds)</label>
+          <label class="right-label">Recommeded(780~1020)</label>
+          <div class="intervals">
+            <input type="number" id="minfollow" name="minfollow" placeholder="Min" min="1" required />
+            <input type="number" id="maxfollow" name="maxfollow" placeholder="Max" min="1" required />
+          </div>
+        </div>
+        <div class="form-field">
+          <label>Unfollow Interval (seconds)</label>
+          <label class="right-label">Recommeded(480~720)</label>
+          <div class="intervals">
+            <input type="number" id="minunfollow" name="minunfollow" placeholder="Min" min="1" required />
+            <input type="number" id="maxunfollow" name="maxunfollow" placeholder="Max" min="1" required />
+          </div>
+        </div>
+        <div class="form-field">
+          <label>Story Skip Time (seconds)</label>
+          <label class="right-label">Recommeded(180~420)</label>
+          <div class="intervals">
+            <input type="number" id="minskip" name="minskip" placeholder="Min" min="1" required />
+            <input type="number" id="maxskip" name="maxskip" placeholder="Max" min="1" required />
+          </div>
+        </div>
+        <button type="submit" class="btn" id="save-settings">Save Settings💾</button>
+        <span id="settings-status"></span>
+      </form>
+    </div>
+
+    <!-- Side Action Panels -->
+    <div class="side-actions">
+      <fieldset>
+        <legend>Auto-Follower</legend>
+        <button type="button" class="btn" id="follow">Start ▶️</button>
+        <textarea id="follow-output" readonly placeholder="Logs and status updates…"></textarea>
+      </fieldset>
+
+      <fieldset>
+        <legend>Unfollow</legend>
+        <div class="radio-group">
+          <label><input type="radio" name="unfollow-type" value="following" checked>Unfollow users that already follow
+            you</label>
+          <label><input type="radio" name="unfollow-type" value="all">Unfollow All</label>
+        </div>
+        <button type="button" class="btn" id="unfollow">Start ▶️</button>
+        <textarea id="unfollow-output" readonly placeholder="Logs and status updates…"></textarea>
+      </fieldset>
+
+      <fieldset>
+        <legend>See Stories</legend>
+        <button type="button" class="btn" id="stories">Start ▶️</button>
+        <textarea id="stories-output" readonly placeholder="Logs and status updates…"></textarea>
+      </fieldset>
+    </div>
+  </div>
+</body>
+
+</html>
+<script type="module" src="./renderer.js"></script>
