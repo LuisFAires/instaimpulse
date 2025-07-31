@@ -1,14 +1,13 @@
 const { ipcRenderer } = require('electron')
 
-function updateLoginStatus(status) {
+async function updateLoginStatus() {
+  const status = await ipcRenderer.invoke('cookies-loaded')
   if (status) {
     document.getElementById('login-status').innerText = 'Already logged in✅, log in again only in case of errors'
     document.getElementById('login-status').classList.remove("blinking-text")
-    cookiesLoaded = true
   } else {
     document.getElementById('login-status').innerText = 'No cookies found, login needed❌'
     document.getElementById('login-status').classList.add("blinking-text")
-    cookiesLoaded = false
   }
 }
 
@@ -22,13 +21,14 @@ function updateSettingsStatus(status) {
   }
 }
 
-function beforeStartCheck() {
-  if (!cookiesLoaded) {
-    alert('Please log in first')
+async function beforeStartCheck() {
+  if (!navigator.onLine) {
+    alert('Check your internet connection')
     return false
   }
-  if(!navigator.onLine) {
-    alert('Check your internet connection')
+  const cookiesLoaded = await ipcRenderer.invoke('cookies-loaded')
+  if (!cookiesLoaded) {
+    alert('Please log in first')
     return false
   }
   return true
@@ -48,10 +48,19 @@ function setupOutputListener(channel, outputId) {
   })
 }
 
-let cookiesLoaded = false
-let isRunningFollow = false
-let isRunningUnfollow = false
-let isRunningStories = false
+async function toggleBot(bot) {
+  let checkup = await beforeStartCheck()
+  if (!checkup) return
+  isRunning[bot] = !isRunning[bot]
+  ipcRenderer.send(`toggle-${bot}`, isRunning[bot], bot == 'unfollow' ? document.querySelector('input[name="unfollow-type"]:checked').value : null)
+  updateInterfaceStatusByButton(document.getElementById(bot), isRunning[bot])
+}
+
+let isRunning = {
+  follow: false,
+  unfollow: false,
+  stories: false
+}
 
 const followScriptButton = document.getElementById('follow')
 const unfollowScriptButton = document.getElementById('unfollow')
@@ -70,8 +79,6 @@ window.addEventListener('DOMContentLoaded', async () => {
     updateSettingsStatus(false)
   }
 
-  cookiesLoaded = await ipcRenderer.invoke('cookies-loaded')
-  updateLoginStatus(cookiesLoaded)
 
   document.getElementById('settings-form').addEventListener('keydown', function (event) {
     // Check if the Enter key was pressed and the target is an input (excluding textarea for new lines)
@@ -104,26 +111,17 @@ document.getElementById('settings-form').addEventListener('input', (e) => {
   updateSettingsStatus(false)
 })
 
-followScriptButton.addEventListener('click', () => {
-  if (!beforeStartCheck()) return
-  isRunningFollow = !isRunningFollow
-  ipcRenderer.send('toggle-follow', isRunningFollow)
-  updateInterfaceStatusByButton(followScriptButton, isRunningFollow)
+followScriptButton.addEventListener('click', async () => {
+  toggleBot('follow')
 })
-unfollowScriptButton.addEventListener('click', () => {
-  if (!beforeStartCheck()) return
-  isRunningUnfollow = !isRunningUnfollow
-  let script = document.querySelector('input[name="unfollow-type"]:checked').value
-  ipcRenderer.send('toggle-unfollow', isRunningUnfollow, script)
-  updateInterfaceStatusByButton(unfollowScriptButton, isRunningUnfollow)
+unfollowScriptButton.addEventListener('click', async () => {
+  toggleBot('unfollow')
 })
-storiesScriptButton.addEventListener('click', () => {
-  if (!beforeStartCheck()) return
-  isRunningStories = !isRunningStories
-  ipcRenderer.send('toggle-stories', isRunningStories, minskip.value, maxskip.value)
-  updateInterfaceStatusByButton(storiesScriptButton, isRunningStories)
+storiesScriptButton.addEventListener('click', async () => {
+  toggleBot('stories')
 })
 
+updateLoginStatus()
 setupOutputListener('update-follow', 'follow-output')
 setupOutputListener('update-unfollow', 'unfollow-output')
 setupOutputListener('update-stories', 'stories-output')
