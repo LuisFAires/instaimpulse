@@ -12,9 +12,6 @@ if (fs.existsSync(cookiesPath)) {
   cookies = JSON.parse(data)
 }
 
-let followProcess = null
-let unfollowProcess = null
-let storiesProcess = null
 
 let mainWindow
 const createWindow = () => {
@@ -85,81 +82,29 @@ ipcMain.handle('save-settings', (event, data) => {
   settings = data
 })
 
-ipcMain.on('toggle-follow', (event, shouldStart) => {
-  if (shouldStart) {
-    StartFollow()
-  } else if (followProcess) {
-    killfollow()
-  }
-  function StartFollow() {
-    followProcess = spawn('node', [path.join(app.getAppPath(), 'bots/follow.js'), JSON.stringify(cookies), settings['similar-pages'], settings.minfollow, settings.maxfollow])
-    followProcess.stdout.on('data', (data) => {
-      mainWindow.webContents.send('update-follow', data.toString())
-    })
-    followProcess.stderr.on('data', (data) => {
-      //win.webContents.send('update-follow', data.toString())
-      console.error(`followerr: ${data}`)
-    })
-    followProcess.on('close', () => {
-      mainWindow.webContents.send('follow-closed')
-    })
-  }
-  function killfollow() {
-    followProcess.kill()
-    followProcess = null
-  }
-})
+const bots = ['follow', 'unfollow', 'unfollowAll', 'stories']
+let processes = {}
 
-ipcMain.on('toggle-unfollow', (event, shouldStart, script) => {
-  if (shouldStart) {
-    startUnfollow(script)
-  } else if (unfollowProcess) {
-    killUnfollow()
-  }
-  function startUnfollow(script) {
-    if (script === 'all') {
-      unfollowProcess = spawn('node', [path.join(app.getAppPath(), 'bots/unfollowAll.js'), JSON.stringify(cookies), settings.username, settings.minunfollow, settings.maxunfollow])
+for (const bot of bots) {
+  processes[bot] = null
+  ipcMain.on(`toggle-${bot}`, (event, shouldStart) => {
+    if (shouldStart) {
+      processes[bot] = spawn('node', [path.join(app.getAppPath(), `bots/${bot}.js`), JSON.stringify(cookies), JSON.stringify(settings)])
+      processes[bot].stdout.on('data', (data) => {
+        mainWindow.webContents.send(`update-${bot}`, data.toString())
+      })
+      processes[bot].stderr.on('data', (data) => {
+        //win.webContents.send(`update-${bot}`, data.toString())
+        console.error(`${bot}err: ${data}`)
+      })
+      processes[bot].on('close', () => {
+        mainWindow.webContents.send(`${bot}-closed`)
+      })
     } else {
-      unfollowProcess = spawn('node', [path.join(app.getAppPath(), 'bots/unfollowFollowing.js'), JSON.stringify(cookies), settings.username, settings.minunfollow, settings.maxunfollow])
+      if (processes[bot]) {
+        processes[bot].kill()
+        processes[bot] = null
+      }
     }
-    unfollowProcess.stdout.on('data', (data) => {
-      mainWindow.webContents.send('update-unfollow', data.toString())
-    })
-    unfollowProcess.stderr.on('data', (data) => {
-      //win.webContents.send('update-unfollow', data.toString())
-      console.error(`unfollowerr: ${data}`)
-    })
-    unfollowProcess.on('close', () => {
-      mainWindow.webContents.send('unfollow-closed')
-    })
-  }
-  function killUnfollow() {
-    unfollowProcess.kill()
-    unfollowProcess = null
-  }
-})
-
-ipcMain.on('toggle-stories', (event, shouldStart) => {
-  if (shouldStart) {
-    startStories()
-  } else {
-    killStories()
-  }
-  function startStories() {
-    storiesProcess = spawn('node', [path.join(app.getAppPath(), 'bots/viewStories.js'), JSON.stringify(cookies), settings.minskip, settings.maxskip])
-    storiesProcess.stdout.on('data', (data) => {
-      mainWindow.webContents.send('update-stories', data.toString())
-    })
-    storiesProcess.stderr.on('data', (data) => {
-      //win.webContents.send('update-stories', data.toString())
-      console.error(`storieserr: ${data}`)
-    })
-    storiesProcess.on('close', () => {
-      mainWindow.webContents.send('stories-closed')
-    })
-  }
-  function killStories() {
-    storiesProcess.kill()
-    storiesProcess = null
-  }
-})
+  })
+}

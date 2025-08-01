@@ -3,9 +3,10 @@ import getRandomBetween from './getRandomBetween.js'
 
 const args = process.argv.slice(2)
 const cookies = JSON.parse(args[0])
-const username = args[1]
-const minunfollow = args[2] * 1000 
-const maxunfollow = args[3] * 1000 
+const settings = JSON.parse(args[1])
+const username = settings.username
+const minunfollow = settings.minunfollow * 1000
+const maxunfollow = settings.minunfollow * 1000
 
 let continueScript = true
 let loadedProfiles = []

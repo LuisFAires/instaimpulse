@@ -3,9 +3,10 @@ import getRandomBetween from './getRandomBetween.js'
 
 const args = process.argv.slice(2)
 const cookies = JSON.parse(args[0])
-const similarPagesString = args[1]
-const minfollow = args[2] * 1000
-const maxfollow = args[3] * 1000
+const settings = JSON.parse(args[1])
+const similarPagesString = settings.similarpages
+const minfollow = settings.minfollow * 1000
+const maxfollow = settings.maxfollow * 1000
 let cleanString = similarPagesString.replace(/\s+/g, "")
 const originalSimilarPages = cleanString.split(",")
 let similarPages = structuredClone(originalSimilarPages)

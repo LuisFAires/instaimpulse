@@ -44,12 +44,14 @@
 
     .card {
       display: grid;
-      grid-template-columns: 430px 700px;
+      width: 95vw;
+      grid-template-columns: repeat(3, 1fr);
+      justify-content: center;
       gap: 24px;
       background: var(--bg-card);
       border: 1px solid var(--border);
       border-radius: var(--radius);
-      padding: 32px;
+      padding: 20px;
       box-shadow: 0 8px 16px rgba(0, 0, 0, 0.6);
     }
 
@@ -62,6 +64,7 @@
     }
 
     .main-settings {
+      min-width: 365px;
       display: flex;
       flex-direction: column;
       justify-content: center;
@@ -146,7 +149,7 @@
       50% {
         box-shadow: 0 0 15px #a29bfe, 0 0 15px #a29bfe;
       }
-      
+
       100% {
         box-shadow: 0 0 10px #6c5ce7, 0 0 10px #6c5ce7;
       }
@@ -166,48 +169,30 @@
       margin-bottom: var(--form-gap);
     }
 
-    .side-actions {
+    .bots-section {
       display: flex;
       flex-direction: column;
       gap: 20px;
     }
 
-    .side-actions fieldset {
+    .bots-section fieldset {
       border: 1px solid var(--border);
       border-radius: var(--radius);
       padding: 16px;
       background: var(--bg-card);
       display: flex;
       flex-direction: column;
+      height: 50%;
     }
 
-    .side-actions legend {
+    .bots-section legend {
       font-size: 0.9rem;
       font-weight: 500;
       color: var(--text);
       padding: 0 6px;
     }
 
-    .side-actions .radio-group {
-      display: flex;
-      gap: 12px;
-      flex-wrap: wrap;
-      margin-bottom: 12px;
-    }
-
-    .side-actions .radio-group label {
-      font-size: 0.9rem;
-      color: var(--text-alt);
-      cursor: pointer;
-    }
-
-    .side-actions .radio-group input[type="radio"] {
-      margin-right: 6px;
-      accent-color: var(--accent5);
-      cursor: pointer;
-    }
-
-    .side-actions textarea {
+    .bots-section textarea {
       margin-top: 12px;
       padding: 10px;
       border: 1px solid var(--border);
@@ -217,9 +202,10 @@
       font-size: 0.9rem;
       min-height: 150px;
       resize: none;
+      height: -webkit-fill-available;
     }
 
-    .side-actions fieldset .btn {
+    .bots-section fieldset .btn {
       margin-top: 0;
     }
 
@@ -273,23 +259,23 @@
         <button class="btn" id="login">Log In🔐</button>
         <div class="form-field">
           <label for="similar-pages">Similar Pages (comma-separated)</label>
-          <textarea id="similar-pages" name="similar-pages"
+          <textarea id="similar-pages" name="similarpages"
             placeholder="usernames from competitors or neighboring businesses"></textarea>
         </div>
         <div class="form-field">
           <label>Follow Interval (seconds)</label>
           <label class="right-label">Recommeded(780~1020)</label>
           <div class="intervals">
-            <input type="number" id="minfollow" name="minfollow" placeholder="Min" min="1" value="780"required />
-            <input type="number" id="maxfollow" name="maxfollow" placeholder="Max" min="1" value="1020"required />
+            <input type="number" id="minfollow" name="minfollow" placeholder="Min" min="1" value="780" required />
+            <input type="number" id="maxfollow" name="maxfollow" placeholder="Max" min="1" value="1020" required />
           </div>
         </div>
         <div class="form-field">
           <label>Unfollow Interval (seconds)</label>
           <label class="right-label">Recommeded(480~720)</label>
           <div class="intervals">
-            <input type="number" id="minunfollow" name="minunfollow" placeholder="Min" min="1"  value="480" required />
-            <input type="number" id="maxunfollow" name="maxunfollow" placeholder="Max" min="1"  value="720" required />
+            <input type="number" id="minunfollow" name="minunfollow" placeholder="Min" min="1" value="480" required />
+            <input type="number" id="maxunfollow" name="maxunfollow" placeholder="Max" min="1" value="720" required />
           </div>
         </div>
         <div class="form-field">
@@ -304,30 +290,28 @@
         <span id="settings-status"></span>
       </form>
     </div>
-
-    <!-- Side Action Panels -->
-    <div class="side-actions">
+    <div class="bots-section">
       <fieldset>
-        <legend>Auto-Follower</legend>
+        <legend>Follow similar pages</legend>
         <button type="button" class="btn" id="follow">Start ▶️</button>
         <textarea id="follow-output" readonly placeholder="Logs and status updates…"></textarea>
       </fieldset>
-
       <fieldset>
-        <legend>Unfollow</legend>
-        <div class="radio-group">
-          <label><input type="radio" name="unfollow-type" value="following" checked>Unfollow users that already follow
-            you</label>
-          <label><input type="radio" name="unfollow-type" value="all">Unfollow All</label>
-        </div>
+        <legend>View Stories</legend>
+        <button type="button" class="btn" id="stories">Start ▶️</button>
+        <textarea id="stories-output" readonly placeholder="Logs and status updates…"></textarea>
+      </fieldset>
+    </div>
+    <div class="bots-section">
+      <fieldset>
+        <legend>Unfollow who already follows you</legend>
         <button type="button" class="btn" id="unfollow">Start ▶️</button>
         <textarea id="unfollow-output" readonly placeholder="Logs and status updates…"></textarea>
       </fieldset>
-
       <fieldset>
-        <legend>See Stories</legend>
-        <button type="button" class="btn" id="stories">Start ▶️</button>
-        <textarea id="stories-output" readonly placeholder="Logs and status updates…"></textarea>
+        <legend>Unfollow every one</legend>
+        <button type="button" class="btn" id="unfollowAll">Start ▶️</button>
+        <textarea id="unfollowAll-output" readonly placeholder="Logs and status updates…"></textarea>
       </fieldset>
     </div>
   </div>
