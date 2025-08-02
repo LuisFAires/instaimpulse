@@ -2,8 +2,7 @@ import loadLoggedInPage from './loadLoggedInPage.js'
 import getRandomBetween from './getRandomBetween.js'
 
 const args = process.argv.slice(2)
-const cookies = JSON.parse(args[0])
-const settings = JSON.parse(args[1])
+const settings = JSON.parse(args[0])
 const username = settings.username
 const minunfollow = settings.minunfollow * 1000
 const maxunfollow = settings.minunfollow * 1000
@@ -22,7 +21,7 @@ const selectors = {
   confirmButton: '._a9--._ap36._a9-_'
 }
 
-const page = await loadLoggedInPage(cookies)
+const page = await loadLoggedInPage()
 const browser = await page.browser()
 
 while (continueScript) {

@@ -1,17 +1,21 @@
 import { dialog, ipcMain, app, BrowserWindow } from 'electron'
-import path from 'path'
 import fs from 'fs'
 import { spawn } from 'child_process'
 import login from './bots/login.js'
 
-let settings
 let cookies
-const cookiesPath = path.join(app.getPath('userData'), 'cookies.json')
+const cookiesPath = './cookies.json'
 if (fs.existsSync(cookiesPath)) {
   const data = fs.readFileSync(cookiesPath)
   cookies = JSON.parse(data)
 }
 
+let settings
+const settingsPath = './settings.json'
+if (fs.existsSync(settingsPath)) {
+  const data = fs.readFileSync(settingsPath)
+  settings = JSON.parse(data)
+}
 
 let mainWindow
 const createWindow = () => {
@@ -23,7 +27,7 @@ const createWindow = () => {
     autoHideMenuBar: true,
     width: 1400,
     height: 1000,
-    icon: path.join(app.getAppPath() + '/icon.png')
+    icon: './icon.png'
   })
   //mainWindow.webContents.openDevTools()
   mainWindow.loadFile('index.html')
@@ -36,15 +40,9 @@ app.whenReady().then(() => {
 })
 
 ipcMain.handle('load-settings', async () => {
-  try {
-    const filePath = path.join(app.getPath('userData'), 'settings.json')
-    if (fs.existsSync(filePath)) {
-      const data = fs.readFileSync(filePath)
-      settings = JSON.parse(data)
-      return settings
-    }
-    return null
-  } catch (error) {
+  if (typeof settings == 'object') {
+    return settings
+  } else {
     console.error('unable to load settings')
   }
 })
@@ -57,7 +55,7 @@ ipcMain.handle('login-form', async (event, username, password) => {
   try {
     const newCookies = await login(username, password)
     if (newCookies) {
-      fs.writeFileSync(path.join(app.getPath('userData'), 'cookies.json'), JSON.stringify(newCookies, null, 2))
+      fs.writeFileSync(cookiesPath, JSON.stringify(newCookies, null, 2))
       cookies = newCookies
       dialog.showMessageBox({
         type: 'info',
@@ -77,8 +75,7 @@ ipcMain.handle('login-form', async (event, username, password) => {
 })
 
 ipcMain.handle('save-settings', (event, data) => {
-  const filePath = path.join(app.getPath('userData'), 'settings.json')
-  fs.writeFileSync(filePath, JSON.stringify(data, null, 2))
+  fs.writeFileSync(settingsPath, JSON.stringify(data, null, 2))
   settings = data
 })
 
@@ -89,7 +86,7 @@ for (const bot of bots) {
   processes[bot] = null
   ipcMain.on(`toggle-${bot}`, (event, shouldStart) => {
     if (shouldStart) {
-      processes[bot] = spawn('node', [path.join(app.getAppPath(), `bots/${bot}.js`), JSON.stringify(cookies), JSON.stringify(settings)])
+      processes[bot] = spawn('node', [`./bots/${bot}.js`, JSON.stringify(settings)])
       processes[bot].stdout.on('data', (data) => {
         mainWindow.webContents.send(`update-${bot}`, data.toString())
       })

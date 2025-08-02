@@ -2,8 +2,7 @@ import loadLoggedInPage from './loadLoggedInPage.js'
 import getRandomBetween from './getRandomBetween.js'
 
 const args = process.argv.slice(2)
-const cookies = JSON.parse(args[0])
-const settings = JSON.parse(args[1])
+const settings = JSON.parse(args[0])
 const similarPagesString = settings.similarpages
 const minfollow = settings.minfollow * 1000
 const maxfollow = settings.maxfollow * 1000
@@ -20,7 +19,7 @@ selectors.profile = 'div[class="x1qnrgzn x1cek8b2 xb10e19 x19rwo8q x1lliihq x193
 selectors.followButton = '._ap3a._aaco._aacw._aad6._aade'
 selectors.buttons = selectors.window + ' button[class=" _aswp _aswr _aswu _asw_ _asx2"]'
 
-const page = await loadLoggedInPage(cookies)
+const page = await loadLoggedInPage()
 const browser = await page.browser()
 
 if(similarPages.length == 0) {
