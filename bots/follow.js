@@ -6,6 +6,8 @@ const settings = JSON.parse(args[0])
 const similarPagesString = settings.similarpages
 const minfollow = settings.minfollow * 1000
 const maxfollow = settings.maxfollow * 1000
+const minskippage = settings.minskippage * 1000
+const maxskippage = settings.maxskippage * 1000
 let cleanString = similarPagesString.replace(/\s+/g, "")
 const originalSimilarPages = cleanString.split(",")
 let similarPages = structuredClone(originalSimilarPages)
@@ -16,13 +18,13 @@ const selectors = {}
 selectors.followers = ' ul > li:nth-child(2)'
 selectors.window = 'div[class="x6nl9eh x1a5l9x9 x7vuprf x1mg3h75 x1lliihq x1iyjqo2 xs83m0k xz65tgg x1rife3k x1n2onr6"]'
 selectors.profile = 'div[class="x1qnrgzn x1cek8b2 xb10e19 x19rwo8q x1lliihq x193iq5w xh8yej3"]'
-selectors.followButton = '._ap3a._aaco._aacw._aad6._aade'
+selectors.followButton = 'div[class="_ap3a _aaco _aacw _aad6 _aade"]'
 selectors.buttons = selectors.window + ' button[class=" _aswp _aswr _aswu _asw_ _asx2"]'
 
 const page = await loadLoggedInPage()
 const browser = await page.browser()
 
-if(similarPages.length == 0) {
+if (similarPages.length == 0) {
   console.log('No similar pages provided, exiting script')
   await browser.close()
   process.exit(0)
@@ -33,17 +35,21 @@ while (true) {
     if (similarPages.length == 0) {
       similarPages = structuredClone(originalSimilarPages)
     }
-    let randomIndex = getRandomBetween(0, similarPages.length)
-
-    console.log(new Date().toLocaleTimeString(), 'Loading target page:', similarPages[randomIndex])
-    await page.goto('https://www.instagram.com/' + similarPages[randomIndex])
+    let randomIndex = getRandomBetween(0, similarPages.length - 1)
+    let currentPage = similarPages[randomIndex]
+    console.log(new Date().toLocaleTimeString(), 'Loading target page:', currentPage)
+    await page.goto('https://www.instagram.com/' + currentPage)
     let skipCount = 0
     similarPages.splice(randomIndex, 1)
-    
     await page.waitForSelector(selectors.followers)
     await page.click(selectors.followers)
     await page.waitForSelector(selectors.window)
-
+    if (minskippage != 0 || maxskippage != 0) {
+      setTimeout(() => {
+        keepCurrentPage = false
+        console.log(new Date().toLocaleTimeString(), 'Skipping page:', currentPage)
+      }, getRandomBetween(minskippage, maxskippage))
+    }
     keepCurrentPage = true
     while (keepCurrentPage) {
       let buttons = await page.$$(selectors.buttons)

@@ -45,7 +45,7 @@
     .card {
       display: grid;
       width: 95vw;
-      grid-template-columns: repeat(3, 1fr);
+      grid-template-columns: 420px 1fr 1fr;
       justify-content: center;
       gap: 24px;
       background: var(--bg-card);
@@ -56,15 +56,13 @@
     }
 
     .card h2 {
-      font-size: 1.5rem;
+      font-size: 3.5rem;
       font-weight: 500;
       text-align: center;
-      margin-bottom: 24px;
       color: var(--text);
     }
 
     .main-settings {
-      min-width: 365px;
       display: flex;
       flex-direction: column;
       justify-content: center;
@@ -213,10 +211,14 @@
       float: right;
     }
 
+    header {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
     .icon {
-      margin-bottom: 20px;
       display: block;
-      margin: auto;
       width: 100px;
       height: 100px;
     }
@@ -245,8 +247,10 @@
   <div class="card">
     <!-- Main Settings Panel -->
     <div class="main-settings">
-      <img src="./icon.png" alt="InstaImpulse Logo" class="icon" />
-      <h2>InstaImpulse</h2>
+      <header>
+        <img src="./icon.png" alt="InstaImpulse Logo" class="icon" />
+        <h2>InstaImpulse</h2>
+      </header>
       <form id="settings-form">
         <div class="form-field">
           <label id="login-status"></label>
@@ -261,6 +265,14 @@
           <label for="similar-pages">Similar Pages (comma-separated)</label>
           <textarea id="similar-pages" name="similarpages"
             placeholder="usernames from competitors or neighboring businesses"></textarea>
+        </div>
+        <div class="form-field">
+          <label>Follow page skip interval (seconds)</label>
+          <label class="right-label">Recommeded(3600~10800)</label>
+          <div class="intervals">
+            <input type="number" id="minskippage" name="minskippage" placeholder="Min" min="1" value="3600" required />
+            <input type="number" id="maxskippage" name="maxskippage" placeholder="Max" min="1" value="10800" required />
+          </div>
         </div>
         <div class="form-field">
           <label>Follow Interval (seconds)</label>
@@ -292,7 +304,7 @@
     </div>
     <div class="bots-section">
       <fieldset>
-        <legend>Follow similar pages</legend>
+        <legend>Follow followers from similar pages</legend>
         <button type="button" class="btn" id="follow">Start ▶️</button>
         <textarea id="follow-output" readonly placeholder="Logs and status updates…"></textarea>
       </fieldset>
@@ -309,7 +321,7 @@
         <textarea id="unfollow-output" readonly placeholder="Logs and status updates…"></textarea>
       </fieldset>
       <fieldset>
-        <legend>Unfollow every one</legend>
+        <legend>Unfollow everyone</legend>
         <button type="button" class="btn" id="unfollowAll">Start ▶️</button>
         <textarea id="unfollowAll-output" readonly placeholder="Logs and status updates…"></textarea>
       </fieldset>
