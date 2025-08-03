@@ -27,12 +27,15 @@ const createWindow = () => {
     autoHideMenuBar: true,
     width: 1400,
     height: 1000,
-    icon: './icon.png'
+    icon: './icon.png',
+    show: false
   })
-  //mainWindow.webContents.openDevTools()
+  //mainWindow.webContents.openDevTools() 
+  mainWindow.maximize()
   mainWindow.loadFile('index.html')
   mainWindow.setMenuBarVisibility(false)
   mainWindow.removeMenu()
+  mainWindow.show()
 }
 
 app.whenReady().then(() => {
