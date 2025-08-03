@@ -11,7 +11,7 @@ let continueScript = true
 
 const selectors = {
   following: 'ul > li:nth-child(3)',
-  window: '.x6nl9eh.x1a5l9x9.x7vuprf.x1mg3h75.x1lliihq.x1iyjqo2.xs83m0k.xz65tgg.x1rife3k.x1n2onr6',
+  window: 'div[class="x6nl9eh x1a5l9x9 x7vuprf x1mg3h75 x1lliihq x1iyjqo2 xs83m0k xz65tgg x1rife3k x1n2onr6"]',
   buttons: 'button[class=" _aswp _aswr _aswv _asw_ _asx2"]',
   profiles: 'div[class="x1qnrgzn x1cek8b2 xb10e19 x19rwo8q x1lliihq x193iq5w xh8yej3"]',
   confirm: 'button[class="_a9-- _ap36 _a9-_"]',
@@ -56,7 +56,7 @@ while (continueScript) {
     }
   } catch (e) {
     console.log(new Date().toLocaleTimeString(), 'ERROR: Something went wrong, restarting script')
-    console.log('Error:', e)
+    console.error(e)
   }
 }
 const browser = await page.browser()

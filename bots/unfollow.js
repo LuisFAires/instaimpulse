@@ -6,21 +6,18 @@ const settings = JSON.parse(args[0])
 const username = settings.username
 const minunfollow = settings.minunfollow * 1000
 const maxunfollow = settings.minunfollow * 1000
-
 let continueScript = true
 let loadedProfiles = []
 let unfollowedCount = 0
 let alreadyRequested = 0
-
 const selectors = {
   followers: 'ul > li:nth-child(2)',
-  window: '.x6nl9eh.x1a5l9x9.x7vuprf.x1mg3h75.x1lliihq.x1iyjqo2.xs83m0k.xz65tgg.x1rife3k.x1n2onr6',
-  profiles: '.x9f619.xjbqb8w.x78zum5.x15mokao.x1ga7v0g.x16uus16.xbiv7yw.x1uhb9sk.x1plvlek.xryxfnj.x1c4vz4f.x2lah0s.x1q0g3np.xqjyukv.x1qjc9v5.x1oa3qoh.x1nhvcw1',
-  openOptionsButton: '._ap3a._aaco._aacw._aad6._aade',
-  windowButtons: '.x1i10hfl.x1qjc9v5.xjbqb8w.xjqpnuy.xc5r6h4.xqeqjp1.x1phubyo.x13fuv20.x18b5jzi.x1q0q8m5.x1t7ytsu.x972fbf.x10w94by.x1qhh985.x14e42zd.x9f619.x1ypdohk.xdl72j9.x2lah0s.xe8uvvx.xdj266r.x14z9mp.xat24cr.x1lziwak.x2lwn1j.xeuugli.xexx8yu.xyri2b.x18d9i69.x1c1uobl.x1n2onr6.x16tdsg8.x1hl2dhg.xggy1nq.x1ja2u2z.x1t137rt.x1q0g3np.x87ps6o.x1lku1pv.x1a2a7pz.x1qnrgzn.x1cek8b2.xb10e19.x19rwo8q.x1lliihq.x193iq5w.xh8yej3',
-  confirmButton: '._a9--._ap36._a9-_'
+  window: 'div[class="x6nl9eh x1a5l9x9 x7vuprf x1mg3h75 x1lliihq x1iyjqo2 xs83m0k xz65tgg x1rife3k x1n2onr6"]',
+  profiles: 'div[class="html-div xdj266r x14z9mp xat24cr x1lziwak xexx8yu xyri2b x18d9i69 x1c1uobl x9f619 xjbqb8w x78zum5 x15mokao x1ga7v0g x16uus16 xbiv7yw x1uhb9sk x1plvlek xryxfnj x1c4vz4f x2lah0s x1q0g3np xqjyukv x1qjc9v5 x1oa3qoh x1nhvcw1"]',
+  openOptionsButton: 'div[class="_ap3a _aaco _aacw _aad6 _aade"]',
+  windowButtons: 'div[class="x1i10hfl x1qjc9v5 xjbqb8w xjqpnuy xc5r6h4 xqeqjp1 x1phubyo x13fuv20 x18b5jzi x1q0q8m5 x1t7ytsu x972fbf x10w94by x1qhh985 x14e42zd x9f619 x1ypdohk xdl72j9 x2lah0s xe8uvvx xdj266r x14z9mp xat24cr x1lziwak x2lwn1j xeuugli xexx8yu xyri2b x18d9i69 x1c1uobl x1n2onr6 x16tdsg8 x1hl2dhg xggy1nq x1ja2u2z x1t137rt x1q0g3np x87ps6o x1lku1pv x1a2a7pz x1qnrgzn x1cek8b2 xb10e19 x19rwo8q x1lliihq x193iq5w xh8yej3"]',
+  confirmButton: 'button[class="_a9-- _ap36 _a9-_"]',
 }
-
 const page = await loadLoggedInPage()
 const browser = await page.browser()
 
@@ -34,7 +31,7 @@ while (continueScript) {
     let i = 0
     while (continueScript) {
       loadedProfiles = await page.$$(selectors.profiles)
-      console.log(new Date().toLocaleTimeString(), loadedProfiles.length, 'users found')
+      console.log(new Date().toLocaleTimeString(), loadedProfiles.length, 'profiles found')
       for (; i < loadedProfiles.length; i++) {
         let status
         let nodesLength = await page.evaluate(el => el.childNodes.length == 1, loadedProfiles[i])
@@ -87,7 +84,7 @@ while (continueScript) {
     }
   } catch (e) {
     console.log(new Date().toLocaleTimeString(), 'ERROR: Something went wrong, restarting script')
-    console.error('Error:', e)
+    console.error(e)
   }
 }
 console.log('Unfollowed count:', unfollowedCount)
