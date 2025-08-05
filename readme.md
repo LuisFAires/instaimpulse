@@ -1,8 +1,9 @@
-
-# InstaImpulse
-
-<img src="https://raw.githubusercontent.com/LuisFAires/instaimpulse/refs/heads/main/icon.png" alt="logo" align="right" style="height:200px;">
-InstaImpulse is a desktop automation tool for Instagram, built with Electron and Puppeteer. It helps automate actions like following users, unfollowing, and viewing stories, using stealth plugins to reduce detection risk.
+   <h1>InstaImpulse</h1>
+<p align="center">
+  <img src="https://raw.githubusercontent.com/LuisFAires/instaimpulse/refs/heads/main/icon.png" alt="logo" height="200">
+</p>
+InstaImpulse is a desktop automation tool for Instagram, built with Electron and Puppeteer. It automates actions like following users, unfollowing, and viewing stories, using stealth plugins to reduce detection risk.
+<img width="100%" alt="127 0 0 1_5500_" src="https://github.com/user-attachments/assets/bed557c9-a45e-47bc-8991-387b167d1a0b" />
 
 ## Features
 
