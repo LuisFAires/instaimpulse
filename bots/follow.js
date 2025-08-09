@@ -16,10 +16,11 @@ let keepCurrentPage = true
 
 const selectors = {}
 selectors.followers = ' ul > li:nth-child(2)'
-selectors.window = 'div[class="x6nl9eh x1a5l9x9 x7vuprf x1mg3h75 x1lliihq x1iyjqo2 xs83m0k xz65tgg x1rife3k x1n2onr6"]'
+selectors.followersWindow = 'div[class="x6nl9eh x1a5l9x9 x7vuprf x1mg3h75 x1lliihq x1iyjqo2 xs83m0k xz65tgg x1rife3k x1n2onr6"]'
+selectors.sugestionsWindow = 'div[class="html-div xdj266r x14z9mp xat24cr x1lziwak xexx8yu xyri2b x18d9i69 x1c1uobl x9f619 xjbqb8w x78zum5 x15mokao x1ga7v0g x16uus16 xbiv7yw x1n2onr6 x6ikm8r x1rife3k x1iyjqo2 x2lwn1j xeuugli xdt5ytf xqjyukv x1qjc9v5 x1oa3qoh x1nhvcw1"]'
 selectors.profile = 'div[class="x1qnrgzn x1cek8b2 xb10e19 x19rwo8q x1lliihq x193iq5w xh8yej3"]'
 selectors.followButton = 'div[class="_ap3a _aaco _aacw _aad6 _aade"]'
-selectors.buttons = selectors.window + ' button[class=" _aswp _aswr _aswu _asw_ _asx2"]'
+selectors.buttons = 'button[class=" _aswp _aswr _aswu _asw_ _asx2"]'
 
 const page = await loadLoggedInPage()
 const browser = await page.browser()
@@ -43,7 +44,10 @@ while (true) {
     similarPages.splice(randomIndex, 1)
     await page.waitForSelector(selectors.followers)
     await page.click(selectors.followers)
-    await page.waitForSelector(selectors.window)
+    selectors.window = await Promise.race([
+      page.waitForSelector(selectors.followersWindow).then(() => selectors.followersWindow),
+      page.waitForSelector(selectors.sugestionsWindow).then(() => selectors.sugestionsWindow)
+    ]);
     if (minskippage != 0 || maxskippage != 0) {
       setTimeout(() => {
         keepCurrentPage = false
@@ -52,12 +56,12 @@ while (true) {
     }
     keepCurrentPage = true
     while (keepCurrentPage) {
-      let buttons = await page.$$(selectors.buttons)
+      let buttons = await page.$$(selectors.window + ' ' + selectors.buttons)
       let loadedProfiles = await page.$$(selectors.profile)
       if (buttons.length != skipCount) {
         let userName = await page.evaluate((buttonsSelector, skipCount) => {
           return document.querySelectorAll(buttonsSelector)[skipCount].parentNode.parentNode.parentNode.children[1].children[0].children[0].children[0].innerText
-        }, selectors.buttons, skipCount)
+        }, (selectors.window + ' ' + selectors.buttons), skipCount)
         let profilePage = await browser.newPage()
         await page.setViewport(null)
         await profilePage.goto('https://www.instagram.com/' + userName)
