@@ -16,7 +16,6 @@ const selectors = {
   profiles: 'div[class="html-div xdj266r x14z9mp xat24cr x1lziwak xexx8yu xyri2b x18d9i69 x1c1uobl x9f619 xjbqb8w x78zum5 x15mokao x1ga7v0g x16uus16 xbiv7yw x1uhb9sk x1plvlek xryxfnj x1c4vz4f x2lah0s x1q0g3np xqjyukv x1qjc9v5 x1oa3qoh x1nhvcw1"]',
   openOptionsButton: 'div[class="_ap3a _aaco _aacw _aad6 _aade"]',
   windowButtons: 'div[class="x1i10hfl x1qjc9v5 xjbqb8w xjqpnuy xc5r6h4 xqeqjp1 x1phubyo x13fuv20 x18b5jzi x1q0q8m5 x1t7ytsu x972fbf x10w94by x1qhh985 x14e42zd x9f619 x1ypdohk xdl72j9 x2lah0s x3ct3a4 xdj266r x14z9mp xat24cr x1lziwak x2lwn1j xeuugli xexx8yu xyri2b x18d9i69 x1c1uobl x1n2onr6 x16tdsg8 x1hl2dhg xggy1nq x1ja2u2z x1t137rt x1q0g3np x87ps6o x1lku1pv x1a2a7pz x1qnrgzn x1cek8b2 xb10e19 x19rwo8q x1lliihq x193iq5w xh8yej3"]',
-  confirmButton: 'button[class="_a9-- _ap36 _a9-_"]',
 }
 const page = await loadLoggedInPage()
 const browser = await page.browser()
@@ -54,14 +53,9 @@ while (continueScript) {
             unfollowedCount++
             await new Promise((r) => { setTimeout(r, getRandomBetween(minunfollow, maxunfollow)) })
           } else {
-            // Uncomment the following lines if you want to remove the follow request
-            /*
-            await profilePage.waitForSelector(selectors.confirmButton)
-            await profilePage.click(selectors.confirmButton)
-            */
             console.log(new Date().toLocaleTimeString(), 'Profile', i + 1, 'of', loadedProfiles.length, userName, 'follow already requested')
             alreadyRequested++
-            //await new Promise((r) => { setTimeout(r, getRandomBetween(minunfollow, maxunfollow)) })
+            await new Promise((r) => { setTimeout(r, 10000) })
           }
           await profilePage.close()
         } else {
