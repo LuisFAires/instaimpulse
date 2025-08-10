@@ -24,7 +24,7 @@ function updateSettingsStatus(status) {
 function updateInterfaceStatusByButton(button, status) {
   button.innerText = status ? 'Stop ⏹️' : 'Start ▶️'
   let element = document.getElementById(button.id + '-output')
-  status ? element.classList.add('pulsing-glow') : element.classList.remove('pulsing-glow')
+  status ? element.parentElement.classList.add('pulsing-glow') : element.parentElement.classList.remove('pulsing-glow')
 }
 
 window.addEventListener('DOMContentLoaded', async () => {
