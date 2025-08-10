@@ -68,15 +68,16 @@ while (true) {
         await profilePage.setViewport(null)
         await profilePage.waitForSelector(selectors.followButton)
         let status = await profilePage.evaluate((optionsButtonSelector) => document.querySelector(optionsButtonSelector).innerText, selectors.followButton)
-        await profilePage.close()
         if (status == 'Follow Back') {
           console.log(new Date().toLocaleTimeString(), 'Already following you, profile skiped:', userName)
-          skipCount++
+          await new Promise((r) => { setTimeout(r, 10000) })
         } else {
-          await buttons[skipCount].click()
+          await profilePage.click(selectors.buttons)
           console.log(new Date().toLocaleTimeString(), 'Follow request sent:', userName)
           await new Promise((r) => { setTimeout(r, getRandomBetween(minfollow, maxfollow)) })
         }
+        skipCount++
+        await profilePage.close()
       } else {
         console.log(new Date().toLocaleTimeString(), 'Updating profile list')
         await page.evaluate((selector) => {
@@ -96,5 +97,11 @@ while (true) {
   } catch (e) {
     console.log(new Date().toLocaleTimeString(), 'ERROR: Something went wrong, restarting script')
     console.error(e)
+
+    let pages = await browser.pages()
+    while (pages.length > 1) {
+      await pages[pages.length - 1].close()
+      pages = await browser.pages()
+    }
   }
 }
