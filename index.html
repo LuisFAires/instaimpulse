@@ -19,13 +19,11 @@
       --accent3: #e56969;
       --accent4: #c1558b;
       --accent5: #8a49a1;
-      --radius: 8px;
+      --radius: 10px;
       --form-gap: 16px;
     }
 
-    *,
-    *::before,
-    *::after {
+    * {
       margin: 0;
       padding: 0;
       box-sizing: border-box;
@@ -40,18 +38,20 @@
       min-height: 100vh;
       padding: 20px;
       color: var(--text);
+      scrollbar-color: var(--bg-card) var(--border);
     }
 
     .card {
       display: grid;
-      width: 95vw;
+      width: 100%;
+      height: 100%;
       grid-template-columns: 420px 1fr 1fr;
       justify-content: center;
-      gap: 24px;
+      gap: var(--form-gap);
       background: var(--bg-card);
       border: 1px solid var(--border);
       border-radius: var(--radius);
-      padding: 20px;
+      padding: var(--form-gap);
       box-shadow: 0 8px 16px rgba(0, 0, 0, 0.6);
     }
 
@@ -68,7 +68,7 @@
       justify-content: center;
     }
 
-    .form-field+.form-field {
+    .form-field {
       margin-top: var(--form-gap);
     }
 
@@ -83,8 +83,9 @@
 
     .form-field input,
     .form-field textarea {
+      display: block;
       width: 100%;
-      padding: 10px 12px;
+      padding: 10px;
       font-size: 0.95rem;
       border: 1px solid var(--border);
       border-radius: var(--radius);
@@ -96,7 +97,7 @@
     .form-field input:focus,
     .form-field textarea:focus {
       outline: none;
-      border-color: var(--accent1);
+      border-color: var(--accent5);
     }
 
     .form-field ::placeholder {
@@ -104,14 +105,20 @@
     }
 
     .form-field textarea {
-      resize: vertical;
-      min-height: 80px;
+      resize: none;
+      min-height: 120px;
     }
 
     .intervals {
       display: grid;
       grid-template-columns: 1fr 1fr;
-      gap: 10px;
+      gap: var(--form-gap);
+    }
+
+    input::-webkit-outer-spin-button,
+    input::-webkit-inner-spin-button {
+      -webkit-appearance: none;
+      margin: 0;
     }
 
     .btn {
@@ -181,26 +188,33 @@
       display: flex;
       flex-direction: column;
       height: 50%;
+      gap: var(--form-gap)
     }
 
     .bots-section legend {
       font-size: 0.9rem;
       font-weight: 500;
-      color: var(--text);
+      color: var(--text-alt);
       padding: 0 6px;
     }
 
+    .scrollbarContainer {
+      height: 100%;
+      width: 100%;
+      border-radius: var(--radius);
+      overflow: hidden;
+    }
+
     .bots-section textarea {
-      margin-top: 12px;
       padding: 10px;
       border: 1px solid var(--border);
       border-radius: var(--radius);
       background: var(--bg-input);
       color: var(--text);
       font-size: 0.9rem;
-      min-height: 150px;
       resize: none;
-      height: -webkit-fill-available;
+      height: 100%;
+      width: 100%;
     }
 
     .bots-section fieldset .btn {
@@ -263,8 +277,10 @@
         <button class="btn" id="login">Log In🔐</button>
         <div class="form-field">
           <label for="similar-pages">Similar Pages (comma-separated)</label>
-          <textarea id="similar-pages" name="similarpages"
-            placeholder="usernames from competitors or neighboring businesses"></textarea>
+          <div class="scrollbarContainer">
+            <textarea id="similar-pages" name="similarpages"
+              placeholder="usernames from competitors or neighboring businesses"></textarea>
+          </div>
         </div>
         <div class="form-field">
           <label>Follow page skip interval (seconds)</label>
@@ -306,24 +322,32 @@
       <fieldset>
         <legend>Follow followers from similar pages</legend>
         <button type="button" class="btn" id="follow">Start ▶️</button>
-        <textarea id="follow-output" disabled placeholder="Logs and status updates…"></textarea>
+        <div class="scrollbarContainer">
+          <textarea id="follow-output" disabled placeholder="Logs and status updates…"></textarea>
+        </div>
       </fieldset>
       <fieldset>
         <legend>View Stories</legend>
         <button type="button" class="btn" id="stories">Start ▶️</button>
-        <textarea id="stories-output" disabled placeholder="Logs and status updates…"></textarea>
+        <div class="scrollbarContainer">
+          <textarea id="stories-output" disabled placeholder="Logs and status updates…"></textarea>
+        </div>
       </fieldset>
     </div>
     <div class="bots-section">
       <fieldset>
         <legend>Unfollow who already follows you</legend>
         <button type="button" class="btn" id="unfollow">Start ▶️</button>
-        <textarea id="unfollow-output" disabled placeholder="Logs and status updates…"></textarea>
+        <div class="scrollbarContainer">
+          <textarea id="unfollow-output" disabled placeholder="Logs and status updates…"></textarea>
+        </div>
       </fieldset>
       <fieldset>
         <legend>Unfollow everyone</legend>
         <button type="button" class="btn" id="unfollowAll">Start ▶️</button>
-        <textarea id="unfollowAll-output" disabled placeholder="Logs and status updates…"></textarea>
+        <div class="scrollbarContainer">
+          <textarea id="unfollowAll-output" disabled placeholder="Logs and status updates…"></textarea>
+        </div>
       </fieldset>
     </div>
   </div>
