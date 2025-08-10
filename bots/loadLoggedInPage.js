@@ -20,7 +20,8 @@ export default async function loadLoggedInPage() {
 
 	await browser.setCookie(...cookies)
 
-	const page = await browser.newPage()
+	const pages = await browser.pages()
+	const page = pages[0]
 	await page.setViewport(null)
 	return page
 }
