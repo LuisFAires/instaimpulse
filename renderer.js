@@ -3,7 +3,7 @@ const { ipcRenderer } = require('electron')
 async function updateLoginStatus() {
   const status = await ipcRenderer.invoke('cookies-loaded')
   if (status) {
-    document.getElementById('login-status').innerText = 'Already logged in✅, log in again only in case of errors'
+    document.getElementById('login-status').innerText = 'Login cookies found✅, login again in case of errors in all bots'
     document.getElementById('login-status').classList.remove("blinking-text")
   } else {
     document.getElementById('login-status').innerText = 'No cookies found, login needed❌'
@@ -24,7 +24,7 @@ function updateSettingsStatus(status) {
 function updateInterfaceStatusByButton(button, status) {
   button.innerText = status ? 'Stop ⏹️' : 'Start ▶️'
   let element = document.getElementById(button.id + '-output')
-  status ? element.parentElement.classList.add('pulsing-glow') : element.parentElement.classList.remove('pulsing-glow')
+  status ? element.parentElement.classList.add('glow') : element.parentElement.classList.remove('glow')
 }
 
 window.addEventListener('DOMContentLoaded', async () => {
@@ -80,16 +80,20 @@ const isRunning = {}
 for (const bot of bots) {
   buttons[bot] = document.getElementById(bot)
   buttons[bot].addEventListener('click', async () => {
-    if (!navigator.onLine) {
-      alert('Check your internet connection')
-      return
+    if (!isRunning[bot]) {
+      if (!navigator.onLine) {
+        alert('Check your internet connection')
+        return
+      }
+      const cookiesLoaded = await ipcRenderer.invoke('cookies-loaded')
+      if (!cookiesLoaded) {
+        alert('Please log in first')
+        return
+      }
+      isRunning[bot] = true
+    } else {
+      isRunning[bot] = false
     }
-    const cookiesLoaded = await ipcRenderer.invoke('cookies-loaded')
-    if (!cookiesLoaded) {
-      alert('Please log in first')
-      return
-    }
-    isRunning[bot] ? isRunning[bot] = false : isRunning[bot] = true
     ipcRenderer.send(`toggle-${bot}`, isRunning[bot])
     updateInterfaceStatusByButton(buttons[bot], isRunning[bot])
   })

@@ -25,29 +25,18 @@
 
     * {
       margin: 0;
-      padding: 0;
       box-sizing: border-box;
       font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
     }
 
-    .card {
+    body {
       scrollbar-color: var(--bg-card) var(--border);
       display: grid;
-      width: 100%;
       height: 100vh;
       grid-template-columns: 420px 1fr 1fr;
-      justify-content: center;
       gap: var(--form-gap);
       background: var(--bg-card);
       padding: var(--form-gap);
-      box-shadow: 0 8px 16px rgba(0, 0, 0, 0.6);
-    }
-
-    h2 {
-      font-size: 3.5rem;
-      font-weight: 500;
-      text-align: center;
-      color: var(--text);
     }
 
     .main-settings {
@@ -56,11 +45,27 @@
       justify-content: center;
     }
 
-    .form-field {
+    header {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .icon {
+      height: 100px;
+    }
+
+    h2 {
+      font-size: 3.5rem;
+      font-weight: 500;
+      color: var(--text);
+    }
+
+    .field-container {
       margin-top: var(--form-gap);
     }
 
-    .form-field label,
+    .field-container label,
     #login-status,
     #settings-status {
       display: inline-block;
@@ -69,8 +74,8 @@
       color: var(--text-alt);
     }
 
-    .form-field input,
-    .form-field textarea {
+    .field-container input,
+    .field-container textarea {
       display: block;
       width: 100%;
       padding: 10px;
@@ -79,22 +84,26 @@
       border-radius: var(--radius);
       background: var(--bg-input);
       color: var(--text);
-      transition: border-color 0.2s;
+      transition: border-color 0.5s;
     }
 
-    .form-field input:focus,
-    .form-field textarea:focus {
+    .field-container input:focus,
+    .field-container textarea:focus {
       outline: none;
       border-color: var(--accent5);
     }
 
-    .form-field ::placeholder {
+    .field-container ::placeholder {
       color: var(--text-alt);
     }
 
-    .form-field textarea {
+    .field-container textarea {
       resize: none;
       min-height: 120px;
+    }
+
+    .right-label {
+      float: right;
     }
 
     .intervals {
@@ -110,7 +119,6 @@
     }
 
     .btn {
-      display: inline-block;
       width: 100%;
       padding: 12px;
       margin-top: var(--form-gap);
@@ -125,27 +133,7 @@
       color: #fff;
       font-weight: bold;
       font-size: 0.95rem;
-      cursor: pointer;
-      transition: filter 0.2s, transform 0.1s;
-    }
-
-    .pulsing-glow {
-      box-shadow: 0 0 20px #6c5ce7;
-      animation: pulseGlow 1s infinite;
-    }
-
-    @keyframes pulseGlow {
-      0% {
-        box-shadow: 0 0 10px #6c5ce7, 0 0 10px #6c5ce7;
-      }
-
-      50% {
-        box-shadow: 0 0 15px #a29bfe, 0 0 15px #a29bfe;
-      }
-
-      100% {
-        box-shadow: 0 0 10px #6c5ce7, 0 0 10px #6c5ce7;
-      }
+      transition: filter 0.5s, transform 0.5s;
     }
 
     .btn:hover {
@@ -156,23 +144,16 @@
       transform: scale(0.98);
     }
 
-    /* extra space below Login button */
-    #login {
-      margin-top: var(--form-gap);
-      margin-bottom: var(--form-gap);
-    }
-
     .bots-section {
       display: flex;
       flex-direction: column;
-      gap: 20px;
+      gap: var(--form-gap)
     }
 
     .bots-section fieldset {
       border: 1px solid var(--border);
       border-radius: var(--radius);
       padding: 16px;
-      background: var(--bg-card);
       display: flex;
       flex-direction: column;
       height: 50%;
@@ -181,15 +162,7 @@
 
     .bots-section legend {
       font-size: 0.9rem;
-      font-weight: 500;
       color: var(--text-alt);
-      padding: 0 6px;
-    }
-
-    .scrollbarContainer {
-      height: 100%;
-      border-radius: var(--radius);
-      overflow: hidden;
     }
 
     .bots-section textarea {
@@ -208,20 +181,10 @@
       margin-top: 0;
     }
 
-    .right-label {
-      float: right;
-    }
-
-    header {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    }
-
-    .icon {
-      display: block;
-      width: 100px;
-      height: 100px;
+    .scrollbarContainer {
+      height: 100%;
+      border-radius: var(--radius);
+      overflow: hidden;
     }
 
     #settings-status {
@@ -241,104 +204,129 @@
         opacity: 0;
       }
     }
+
+    .glow {
+      animation: glow 1s infinite;
+    }
+
+    @keyframes glow {
+
+      0%,
+      100% {
+        box-shadow: 0 0 15px 0 var(--accent1)
+      }
+
+      10%,
+      90% {
+        box-shadow: 0 0 15px 0 var(--accent2)
+      }
+
+      25%,
+      75% {
+        box-shadow: 0 0 15px 0 var(--accent3)
+      }
+
+      40%,
+      60% {
+        box-shadow: 0 0 15px 0 var(--accent4)
+      }
+
+      50% {
+        box-shadow: 0 0 15px 0 var(--accent5)
+      }
+    }
   </style>
 </head>
-
 <body>
-  <div class="card">
-    <!-- Main Settings Panel -->
-    <div class="main-settings">
-      <header>
-        <img src="./icon.png" alt="InstaImpulse Logo" class="icon" />
-        <h2>InstaImpulse</h2>
-      </header>
-      <form id="settings-form">
-        <div class="form-field">
-          <label id="login-status"></label>
-          <input type="text" id="username" name="username" placeholder="⚠️ username only" required />
-        </div>
-        <div class="form-field">
-          <input type="password" id="password" name="password" placeholder="Password" required />
-        </div>
-        <!-- Login button with extra spacing -->
-        <button class="btn" id="login">Log In🔐</button>
-        <div class="form-field">
-          <label for="similar-pages">Similar Pages (comma-separated)</label>
-          <div class="scrollbarContainer">
-            <textarea id="similar-pages" name="similarpages"
-              placeholder="usernames from competitors or neighboring businesses"></textarea>
-          </div>
-        </div>
-        <div class="form-field">
-          <label>Follow page skip interval (seconds)</label>
-          <label class="right-label">Recommeded(3600~10800)</label>
-          <div class="intervals">
-            <input type="number" id="minskippage" name="minskippage" placeholder="Min" min="0" value="3600" required />
-            <input type="number" id="maxskippage" name="maxskippage" placeholder="Max" min="0" value="10800" required />
-          </div>
-        </div>
-        <div class="form-field">
-          <label>Follow Interval (seconds)</label>
-          <label class="right-label">Recommeded(780~1020)</label>
-          <div class="intervals">
-            <input type="number" id="minfollow" name="minfollow" placeholder="Min" min="1" value="780" required />
-            <input type="number" id="maxfollow" name="maxfollow" placeholder="Max" min="1" value="1020" required />
-          </div>
-        </div>
-        <div class="form-field">
-          <label>Unfollow Interval (seconds)</label>
-          <label class="right-label">Recommeded(480~720)</label>
-          <div class="intervals">
-            <input type="number" id="minunfollow" name="minunfollow" placeholder="Min" min="1" value="480" required />
-            <input type="number" id="maxunfollow" name="maxunfollow" placeholder="Max" min="1" value="720" required />
-          </div>
-        </div>
-        <div class="form-field">
-          <label>Story Skip Time (seconds)</label>
-          <label class="right-label">Recommeded(180~420)</label>
-          <div class="intervals">
-            <input type="number" id="minskip" name="minskip" placeholder="Min" min="1" value="180" required />
-            <input type="number" id="maxskip" name="maxskip" placeholder="Max" min="1" value="240" required />
-          </div>
-        </div>
-        <button type="submit" class="btn" id="save-settings">Save Settings💾</button>
-        <span id="settings-status"></span>
-      </form>
-    </div>
-    <div class="bots-section">
-      <fieldset>
-        <legend>Follow followers from similar pages</legend>
-        <button type="button" class="btn" id="follow">Start ▶️</button>
+  <div class="main-settings">
+    <header>
+      <img src="./icon.png" alt="InstaImpulse Logo" class="icon" />
+      <h2>InstaImpulse</h2>
+    </header>
+    <form id="settings-form">
+      <div class="field-container">
+        <label id="login-status"></label>
+        <input type="text" id="username" name="username" placeholder="⚠️ username only" required />
+      </div>
+      <div class="field-container">
+        <input type="password" id="password" name="password" placeholder="Password" required />
+      </div>
+      <button class="btn" id="login">Log In🔐</button>
+      <div class="field-container">
+        <label for="similar-pages">Similar Pages (comma-separated)</label>
         <div class="scrollbarContainer">
-          <textarea id="follow-output" disabled placeholder="Logs and status updates…"></textarea>
+          <textarea id="similar-pages" name="similarpages"
+            placeholder="usernames from competitors or neighboring businesses"></textarea>
         </div>
-      </fieldset>
-      <fieldset>
-        <legend>View Stories</legend>
-        <button type="button" class="btn" id="stories">Start ▶️</button>
-        <div class="scrollbarContainer">
-          <textarea id="stories-output" disabled placeholder="Logs and status updates…"></textarea>
+      </div>
+      <div class="field-container">
+        <label>Follow page skip interval (seconds)</label>
+        <label class="right-label">Recommeded(3600~10800)</label>
+        <div class="intervals">
+          <input type="number" id="minskippage" name="minskippage" placeholder="Min" min="0" value="3600" required />
+          <input type="number" id="maxskippage" name="maxskippage" placeholder="Max" min="0" value="10800" required />
         </div>
-      </fieldset>
-    </div>
-    <div class="bots-section">
-      <fieldset>
-        <legend>Unfollow who already follows you</legend>
-        <button type="button" class="btn" id="unfollow">Start ▶️</button>
-        <div class="scrollbarContainer">
-          <textarea id="unfollow-output" disabled placeholder="Logs and status updates…"></textarea>
+      </div>
+      <div class="field-container">
+        <label>Follow Interval (seconds)</label>
+        <label class="right-label">Recommeded(780~1020)</label>
+        <div class="intervals">
+          <input type="number" id="minfollow" name="minfollow" placeholder="Min" min="1" value="780" required />
+          <input type="number" id="maxfollow" name="maxfollow" placeholder="Max" min="1" value="1020" required />
         </div>
-      </fieldset>
-      <fieldset>
-        <legend>Unfollow everyone</legend>
-        <button type="button" class="btn" id="unfollowAll">Start ▶️</button>
-        <div class="scrollbarContainer">
-          <textarea id="unfollowAll-output" disabled placeholder="Logs and status updates…"></textarea>
+      </div>
+      <div class="field-container">
+        <label>Unfollow Interval (seconds)</label>
+        <label class="right-label">Recommeded(480~720)</label>
+        <div class="intervals">
+          <input type="number" id="minunfollow" name="minunfollow" placeholder="Min" min="1" value="480" required />
+          <input type="number" id="maxunfollow" name="maxunfollow" placeholder="Max" min="1" value="720" required />
         </div>
-      </fieldset>
-    </div>
+      </div>
+      <div class="field-container">
+        <label>Story Skip Time (seconds)</label>
+        <label class="right-label">Recommeded(180~420)</label>
+        <div class="intervals">
+          <input type="number" id="minskip" name="minskip" placeholder="Min" min="1" value="180" required />
+          <input type="number" id="maxskip" name="maxskip" placeholder="Max" min="1" value="240" required />
+        </div>
+      </div>
+      <button type="submit" class="btn" id="save-settings">Save Settings💾</button>
+      <span id="settings-status"></span>
+    </form>
+  </div>
+  <div class="bots-section">
+    <fieldset>
+      <legend>Follow followers from similar pages</legend>
+      <button type="button" class="btn" id="follow">Start ▶️</button>
+      <div class="scrollbarContainer">
+        <textarea id="follow-output" disabled placeholder="Logs and status updates…"></textarea>
+      </div>
+    </fieldset>
+    <fieldset>
+      <legend>View Stories</legend>
+      <button type="button" class="btn" id="stories">Start ▶️</button>
+      <div class="scrollbarContainer">
+        <textarea id="stories-output" disabled placeholder="Logs and status updates…"></textarea>
+      </div>
+    </fieldset>
+  </div>
+  <div class="bots-section">
+    <fieldset>
+      <legend>Unfollow who already follows you</legend>
+      <button type="button" class="btn" id="unfollow">Start ▶️</button>
+      <div class="scrollbarContainer">
+        <textarea id="unfollow-output" disabled placeholder="Logs and status updates…"></textarea>
+      </div>
+    </fieldset>
+    <fieldset>
+      <legend>Unfollow everyone</legend>
+      <button type="button" class="btn" id="unfollowAll">Start ▶️</button>
+      <div class="scrollbarContainer">
+        <textarea id="unfollowAll-output" disabled placeholder="Logs and status updates…"></textarea>
+      </div>
+    </fieldset>
   </div>
 </body>
-
 </html>
 <script type="module" src="./renderer.js"></script>
