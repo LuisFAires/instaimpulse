@@ -1,5 +1,6 @@
 import loadLoggedInPage from './loadLoggedInPage.js'
 import getRandomBetween from './getRandomBetween.js'
+import simulateInteraction from './simulateInteraction.js'
 
 const args = process.argv.slice(2)
 const settings = JSON.parse(args[0])
@@ -70,10 +71,12 @@ while (true) {
         let status = await profilePage.evaluate((optionsButtonSelector) => document.querySelector(optionsButtonSelector).innerText, selectors.followButton)
         if (status == 'Follow Back') {
           console.log(new Date().toLocaleTimeString(), 'Already following you, profile skiped:', userName)
-          await new Promise((r) => { setTimeout(r, 10000) })
+          simulateInteraction(profilePage)
+          await new Promise((r) => { setTimeout(r, getRandomBetween(5000, 15000)) })
         } else {
           await profilePage.click(selectors.buttons)
           console.log(new Date().toLocaleTimeString(), 'Follow request sent:', userName)
+          simulateInteraction(profilePage)
           await new Promise((r) => { setTimeout(r, getRandomBetween(minfollow, maxfollow)) })
         }
         skipCount++

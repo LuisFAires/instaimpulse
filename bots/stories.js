@@ -19,7 +19,7 @@ while (true) {
     let randomIndex = getRandomBetween(0, elements.length - 1)
     await elements[randomIndex].click()
     await page.waitForSelector(skipButtonSelector, { timeout: 5000 })
-    await new Promise(resolve => setTimeout(resolve, 2000))
+    await new Promise(resolve => setTimeout(resolve, getRandomBetween(1000, 4000)))
     let pageContentBeforeClick = await page.content()
     while (true) {
       //Check for the skip button to ensure it's a story and not a live
@@ -28,7 +28,7 @@ while (true) {
       await new Promise(resolve => setTimeout(resolve, getRandomBetween(minskip, maxskip)))
       await page.click(skipButtonSelector)
       console.log(new Date().toLocaleTimeString(), 'Skip button clicked')
-      await new Promise(resolve => setTimeout(resolve, 2000))
+      await new Promise((r) => { setTimeout(r, getRandomBetween(1000, 4000)) })
       let pageContentAfterClick = await page.content()
       if (pageContentBeforeClick != pageContentAfterClick) {
         console.log(new Date().toLocaleTimeString(), 'Content changed after clicking skip button')

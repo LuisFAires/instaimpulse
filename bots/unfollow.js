@@ -1,5 +1,6 @@
 import loadLoggedInPage from './loadLoggedInPage.js'
 import getRandomBetween from './getRandomBetween.js'
+import simulateInteraction from './simulateInteraction.js'
 
 const args = process.argv.slice(2)
 const settings = JSON.parse(args[0])
@@ -10,6 +11,7 @@ let continueScript = true
 let loadedProfiles = []
 let unfollowedCount = 0
 let alreadyRequested = 0
+let invalidProfiles = 0
 const selectors = {
   followers: 'ul > li:nth-child(2)',
   window: 'div[class="x6nl9eh x1a5l9x9 x7vuprf x1mg3h75 x1lliihq x1iyjqo2 xs83m0k xz65tgg x1rife3k x1n2onr6"]',
@@ -34,32 +36,41 @@ while (continueScript) {
       for (; i < loadedProfiles.length; i++) {
         let status
         let nodesLength = await page.evaluate(el => el.childNodes.length == 1, loadedProfiles[i])
-        if (nodesLength == 1) {//nodesLength == 1 means that the profile is being followed or was already requested
-          let userName = await page.evaluate(el => el.childNodes[0].innerText, loadedProfiles[i])
+        //nodesLength == 1 means that the profile is being followed or was already requested
+        let userName = await page.evaluate(el => el.childNodes[0].innerText, loadedProfiles[i])
+        if (nodesLength) {
           let profilePage = await browser.newPage()
-          await page.setViewport(null)
-          await profilePage.goto('https://www.instagram.com/' + userName)
-          await profilePage.setViewport(null)
-          await profilePage.waitForSelector(selectors.openOptionsButton)
-          status = await profilePage.evaluate((openOptionsButtonSelector) => document.querySelector(openOptionsButtonSelector).innerText, selectors.openOptionsButton)
-          await profilePage.click(selectors.openOptionsButton)
-          if (status == 'Following') {
-            await profilePage.waitForSelector(selectors.windowButtons)
-            await profilePage.evaluate((selector) => {
-              let buttons = document.querySelectorAll(selector)
-              buttons[buttons.length - 1].click()
-            }, selectors.windowButtons)
-            console.log(new Date().toLocaleTimeString(), 'Profile', i + 1, 'of', loadedProfiles.length, userName, 'unfollowed')
-            unfollowedCount++
-            await new Promise((r) => { setTimeout(r, getRandomBetween(minunfollow, maxunfollow)) })
-          } else {
-            console.log(new Date().toLocaleTimeString(), 'Profile', i + 1, 'of', loadedProfiles.length, userName, 'follow already requested')
-            alreadyRequested++
-            await new Promise((r) => { setTimeout(r, 10000) })
+          try {
+            await profilePage.goto('https://www.instagram.com/' + userName)
+            await profilePage.setViewport(null)
+            await profilePage.waitForSelector(selectors.openOptionsButton)
+            status = await profilePage.evaluate((openOptionsButtonSelector) => document.querySelector(openOptionsButtonSelector).innerText, selectors.openOptionsButton)
+            await profilePage.click(selectors.openOptionsButton)
+            if (status == 'Following') {
+              await profilePage.waitForSelector(selectors.windowButtons)
+              await profilePage.evaluate((selector) => {
+                let buttons = document.querySelectorAll(selector)
+                buttons[buttons.length - 1].click()
+              }, selectors.windowButtons)
+              console.log(new Date().toLocaleTimeString(), 'Profile', i + 1, 'of', loadedProfiles.length, userName, 'unfollowed')
+              unfollowedCount++
+              simulateInteraction(profilePage)
+              await new Promise((r) => { setTimeout(r, getRandomBetween(minunfollow, maxunfollow)) })
+            } else {
+              console.log(new Date().toLocaleTimeString(), 'Profile', i + 1, 'of', loadedProfiles.length, userName, 'already requested')
+              alreadyRequested++
+              simulateInteraction(profilePage)
+              await new Promise((r) => { setTimeout(r, getRandomBetween(5000, 15000)) })
+            }
+            await profilePage.close()
+          } catch {
+            await profilePage.close()
+            console.log(new Date().toLocaleTimeString(), 'Profile', i + 1, 'of', loadedProfiles.length, userName, 'invalid profile')
+            invalidProfiles++
+            i++ //don't know why invalid profiles are duplicated
           }
-          await profilePage.close()
         } else {
-          console.log(new Date().toLocaleTimeString(), 'Profile', i + 1, 'of', loadedProfiles.length, 'already not being followed')
+          console.log(new Date().toLocaleTimeString(), 'Profile', i + 1, 'of', loadedProfiles.length, userName, 'already not following')
         }
       }
       console.log(new Date().toLocaleTimeString(), 'Updating profile list')
@@ -89,5 +100,6 @@ while (continueScript) {
 }
 console.log('Unfollowed count:', unfollowedCount)
 console.log('Already requested count:', alreadyRequested)
+console.log('Invalid profiles count:', invalidProfiles)
 await browser.close()
 console.log('Script finished')

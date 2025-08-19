@@ -1,5 +1,6 @@
 import loadLoggedInPage from './loadLoggedInPage.js'
 import getRandomBetween from './getRandomBetween.js'
+import simulateInteraction from './simulateInteraction.js'
 
 const args = process.argv.slice(2)
 const settings = JSON.parse(args[0])
@@ -38,7 +39,12 @@ while (continueScript) {
         await page.waitForSelector(selectors.confirm)
         await page.click(selectors.confirm)
         console.log(new Date().toLocaleTimeString(), 'Unfollowing profile:', userName)
+        let profilePage = await page.browser().newPage()
+        await profilePage.setViewport(null)
+        await profilePage.goto('https://www.instagram.com/' + userName)
+        simulateInteraction(profilePage)
         await new Promise((r) => { setTimeout(r, getRandomBetween(minunfollow, maxunfollow)) })
+        await profilePage.close()
       } else {
         console.log(new Date().toLocaleTimeString(), 'Updating profile list')
         await page.evaluate((selector) => {

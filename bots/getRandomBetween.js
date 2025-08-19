@@ -1,3 +1,5 @@
+import crypto from 'crypto';
+
 export default function getRandomBetween(min, max) {
-  return Math.floor(Math.random() * (max - min + 1)) + min
+  return crypto.randomInt(min, max + 1);
 }
