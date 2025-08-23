@@ -32,19 +32,19 @@ while (continueScript) {
       let buttons = await page.$$(selectors.buttons)
       let loadedProfiles = await page.$$(selectors.profiles)
       if (buttons.length != 0) {
-        let userName = await page.evaluate((buttonsSelector) => {
+        let userToUnfollow = await page.evaluate((buttonsSelector) => {
           return document.querySelector(buttonsSelector).parentNode.parentNode.parentNode.children[1].children[0].children[0].children[0].innerText
         }, selectors.buttons)
-        await page.click(selectors.buttons)
-        await page.waitForSelector(selectors.confirm)
-        await page.click(selectors.confirm)
-        console.log(new Date().toLocaleTimeString(), 'Unfollowing profile:', userName)
+        console.log(new Date().toLocaleTimeString(), 'Unfollowing profile:', userToUnfollow)
         let profilePage = await page.browser().newPage()
         await profilePage.setViewport(null)
-        await profilePage.goto('https://www.instagram.com/' + userName)
+        await profilePage.goto('https://www.instagram.com/' + userToUnfollow)
         simulateInteraction(profilePage)
         await new Promise((r) => { setTimeout(r, getRandomBetween(minunfollow, maxunfollow)) })
         await profilePage.close()
+        await page.click(selectors.buttons)
+        await page.waitForSelector(selectors.confirm)
+        await page.click(selectors.confirm)
       } else {
         console.log(new Date().toLocaleTimeString(), 'Updating profile list')
         await page.evaluate((selector) => {
