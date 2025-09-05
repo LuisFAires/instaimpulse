@@ -22,31 +22,34 @@ const page = await loadLoggedInPage()
 
 while (continueScript) {
   try {
-    console.log(new Date().toLocaleTimeString(), 'Loading profile list')
+    console.log(new Date().toLocaleTimeString(), 'Loading profile list⌛')
     await page.goto('https://www.instagram.com/' + username)
     await page.waitForSelector(selectors.following)
     await page.click(selectors.following)
     await page.waitForSelector(selectors.window)
 
+    const profileSkipAmount = getRandomBetween(50, 100) //every 4 is 1 hour in default settings
+
     while (continueScript) {
       let buttons = await page.$$(selectors.buttons)
       let loadedProfiles = await page.$$(selectors.profiles)
-      if (buttons.length != 0) {
-        let userToUnfollow = await page.evaluate((buttonsSelector) => {
-          return document.querySelector(buttonsSelector).parentNode.parentNode.parentNode.children[1].children[0].children[0].children[0].innerText
-        }, selectors.buttons)
-        console.log(new Date().toLocaleTimeString(), 'Unfollowing profile:', userToUnfollow)
+      if (buttons.length > profileSkipAmount) {
+        let userToUnfollow = await page.evaluate((buttonsSelector, profileSkipAmount) => {
+          return document.querySelectorAll(buttonsSelector)[profileSkipAmount].parentNode.parentNode.parentNode.children[1].children[0].children[0].children[0].innerText
+        }, selectors.buttons, profileSkipAmount)
+        console.log(new Date().toLocaleTimeString(), 'Next profile:',  userToUnfollow, '👀🤖🔜🎯')
         let profilePage = await page.browser().newPage()
         await profilePage.setViewport(null)
         await profilePage.goto('https://www.instagram.com/' + userToUnfollow)
         simulateInteraction(profilePage)
         await new Promise((r) => { setTimeout(r, getRandomBetween(minunfollow, maxunfollow)) })
         await profilePage.close()
-        await page.click(selectors.buttons)
+        await buttons[profileSkipAmount].click()
         await page.waitForSelector(selectors.confirm)
         await page.click(selectors.confirm)
+        console.log(new Date().toLocaleTimeString(), 'Unfollowed✅')
       } else {
-        console.log(new Date().toLocaleTimeString(), 'Updating profile list')
+        console.log(new Date().toLocaleTimeString(), 'Updating profile list🔄')
         await page.evaluate((selector) => {
           const followersWindow = document.querySelector(selector)
           followersWindow.scrollTop = followersWindow.scrollHeight
@@ -61,10 +64,10 @@ while (continueScript) {
       }
     }
   } catch (e) {
-    console.log(new Date().toLocaleTimeString(), 'ERROR: Something went wrong, restarting script')
+    console.log(new Date().toLocaleTimeString(), 'ERROR: Something went wrong, restarting script❌❌❌')
     console.error(e)
   }
 }
 const browser = await page.browser()
 await browser.close()
-console.log('Script finished')
+console.log('Script finished✅')

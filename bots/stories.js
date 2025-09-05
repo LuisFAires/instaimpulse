@@ -12,7 +12,7 @@ const skipButtonSelector = 'path[d="M12.005.503a11.5 11.5 0 1 0 11.5 11.5 11.513
 
 while (true) {
   try {
-    console.log(new Date().toLocaleTimeString(), 'Loading stories')
+    console.log(new Date().toLocaleTimeString(), 'Loading stories⌛')
     await page.goto('https://www.instagram.com/')
     await page.waitForSelector(storiesSelector, { visible: true })
     let elements = await page.$$(storiesSelector, { visible: true })
@@ -24,22 +24,22 @@ while (true) {
     while (true) {
       //Check for the skip button to ensure it's a story and not a live
       await page.waitForSelector(skipButtonSelector, { timeout: 3000 })
-      console.log(new Date().toLocaleTimeString(), 'Stories playing')
+      console.log(new Date().toLocaleTimeString(), 'Stories playing✅')
       await new Promise(resolve => setTimeout(resolve, getRandomBetween(minskip, maxskip)))
       await page.click(skipButtonSelector)
-      console.log(new Date().toLocaleTimeString(), 'Skip button clicked')
+      console.log(new Date().toLocaleTimeString(), 'Skip button clicked⏩🖱️✅')
       await new Promise((r) => { setTimeout(r, getRandomBetween(1000, 4000)) })
       let pageContentAfterClick = await page.content()
       if (pageContentBeforeClick != pageContentAfterClick) {
-        console.log(new Date().toLocaleTimeString(), 'Content changed after clicking skip button')
+        console.log(new Date().toLocaleTimeString(), 'Content changed after clicking skip button✅')
       } else {
-        console.log(new Date().toLocaleTimeString(), 'Page content  is not changing')
+        console.log(new Date().toLocaleTimeString(), 'Page content  is not changing❌')
         break
       }
     }
 
   } catch (error) {
-    console.log(new Date().toLocaleTimeString(), 'ERROR: Something went wrong, Restarting...')
+    console.log(new Date().toLocaleTimeString(), 'ERROR: Something went wrong, Restarting...❌❌❌')
     console.error(error)
   }
 }

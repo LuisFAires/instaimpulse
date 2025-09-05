@@ -27,7 +27,7 @@ const page = await loadLoggedInPage()
 const browser = await page.browser()
 
 if (similarPages.length == 0) {
-  console.log('No similar pages provided, exiting script')
+  console.log('No similar pages provided, exiting script ‼️❌')
   await browser.close()
   process.exit(0)
 }
@@ -39,7 +39,7 @@ while (true) {
     }
     let randomIndex = getRandomBetween(0, similarPages.length - 1)
     let currentPage = similarPages[randomIndex]
-    console.log(new Date().toLocaleTimeString(), 'Loading target page:', currentPage)
+    console.log(new Date().toLocaleTimeString(), 'Loading target page:', currentPage, '⌛')
     await page.goto('https://www.instagram.com/' + currentPage)
     let skipCount = 0
     similarPages.splice(randomIndex, 1)
@@ -52,7 +52,7 @@ while (true) {
     if (minskippage != 0 || maxskippage != 0) {
       setTimeout(() => {
         keepCurrentPage = false
-        console.log(new Date().toLocaleTimeString(), 'Skipping page:', currentPage)
+        console.log(new Date().toLocaleTimeString(), 'Skipping page:', currentPage, '⏩⏩⏩')
       }, getRandomBetween(minskippage, maxskippage))
     }
     keepCurrentPage = true
@@ -70,19 +70,21 @@ while (true) {
         await profilePage.waitForSelector(selectors.followButton)
         let status = await profilePage.evaluate((optionsButtonSelector) => document.querySelector(optionsButtonSelector).innerText, selectors.followButton)
         if (status == 'Follow Back') {
-          console.log(new Date().toLocaleTimeString(), 'Already following you, profile skiped:', userName)
+          console.log(new Date().toLocaleTimeString(), 'Already following you, profile skiped:', userName, '⏩')
           simulateInteraction(profilePage)
           await new Promise((r) => { setTimeout(r, getRandomBetween(5000, 15000)) })
         } else {
-          await profilePage.click(selectors.buttons)
-          console.log(new Date().toLocaleTimeString(), 'Follow request sent:', userName)
+          console.log(new Date().toLocaleTimeString(), 'Next profile:',  userName, '👀🤖🔜🎯')
           simulateInteraction(profilePage)
           await new Promise((r) => { setTimeout(r, getRandomBetween(minfollow, maxfollow)) })
+          await profilePage.click(selectors.buttons)
+          console.log(new Date().toLocaleTimeString(), 'Follow request sent ✅')
+          await new Promise((r) => { setTimeout(r, getRandomBetween(3000, 5000)) })
         }
         skipCount++
         await profilePage.close()
       } else {
-        console.log(new Date().toLocaleTimeString(), 'Updating profile list')
+        console.log(new Date().toLocaleTimeString(), 'Updating profile list 🔄')
         await page.evaluate((selector) => {
           const followersWindow = document.querySelector(selector)
           followersWindow.scrollTop = followersWindow.scrollHeight
@@ -98,7 +100,7 @@ while (true) {
     }
 
   } catch (e) {
-    console.log(new Date().toLocaleTimeString(), 'ERROR: Something went wrong, restarting script')
+    console.log(new Date().toLocaleTimeString(), 'ERROR: Something went wrong, restarting script❌❌❌')
     console.error(e)
 
     let pages = await browser.pages()
