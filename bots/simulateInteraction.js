@@ -6,7 +6,7 @@ export default async function simulateInteraction(page, hoverSelector = 'canvas,
       const elements = await page.$$(hoverSelector);
       const element = elements[getRandomBetween(0, elements.length - 1)];
       const { y } = await element.boundingBox();
-      const scrollAmount = y - height / 2;
+      const scrollAmount = y - getRandomBetween(height * 0.2, height * 0.8);
       await page.evaluate(y => window.scrollBy(0, y), scrollAmount);
       await new Promise((r) => { setTimeout(r, getRandomBetween(1000, 3000)) })
       await element.hover();
