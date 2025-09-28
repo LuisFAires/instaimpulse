@@ -1,20 +1,16 @@
-import loadLoggedInPage from './loadLoggedInPage.js'
-import getRandomBetween from './getRandomBetween.js'
-import simulateInteraction from './simulateInteraction.js'
+import * as utils from './utils.js';
 
-const args = process.argv.slice(2)
-const settings = JSON.parse(args[0])
+utils.setupStopHandlers()
+const settings = utils.loadSettings()
 const similarPagesString = settings.similarpages
 const minfollow = settings.minfollow * 1000
 const maxfollow = settings.maxfollow * 1000
 const minskippage = settings.minskippage * 1000
 const maxskippage = settings.maxskippage * 1000
 let cleanString = similarPagesString.replace(/\s+/g, "")
-const originalSimilarPages = cleanString.split(",")
+const originalSimilarPages = [...new Set(cleanString.split(","))]
 let similarPages = structuredClone(originalSimilarPages)
-
-let keepCurrentPage = true
-
+let keepCurrentPage
 const selectors = {}
 selectors.followers = ' ul > li:nth-child(2)'
 selectors.followersWindow = 'div[class="x6nl9eh x1a5l9x9 x7vuprf x1mg3h75 x1lliihq x1iyjqo2 xs83m0k xz65tgg x1rife3k x1n2onr6"]'
@@ -23,8 +19,10 @@ selectors.profile = 'div[class="x1qnrgzn x1cek8b2 xb10e19 x19rwo8q x1lliihq x193
 selectors.followButton = 'div[class="_ap3a _aaco _aacw _aad6 _aade"]'
 selectors.buttons = 'button[class=" _aswp _aswr _aswu _asw_ _asx2"]'
 
-const page = await loadLoggedInPage()
-const browser = await page.browser()
+const browser = await utils.newBrowserInstance()
+const page = await browser.newPage()
+await page.setViewport(null)
+let profilePage
 
 if (similarPages.length == 0) {
   console.log('No similar pages provided, exiting script ‼️❌')
@@ -32,17 +30,19 @@ if (similarPages.length == 0) {
   process.exit(0)
 }
 
-while (true) {
+while (!utils.hasReceivedStopMessage()) {
   try {
+    console.log(new Date().toLocaleDateString(), new Date().toLocaleTimeString(), 'Pages left to be target:', similarPages.length, '⚙️🔜🎯')
     if (similarPages.length == 0) {
       similarPages = structuredClone(originalSimilarPages)
+      console.log(new Date().toLocaleDateString(), new Date().toLocaleTimeString(), 'No pages left, original list recovered. Pages found:', similarPages.length, '♻️')
     }
-    let randomIndex = getRandomBetween(0, similarPages.length - 1)
+    let randomIndex = utils.getRandomBetween(0, similarPages.length - 1)
     let currentPage = similarPages[randomIndex]
-    console.log(new Date().toLocaleTimeString(), 'Loading target page:', currentPage, '⌛')
-    await page.goto('https://www.instagram.com/' + currentPage)
-    let skipCount = 0
     similarPages.splice(randomIndex, 1)
+    let skipCount = 0
+    console.log(new Date().toLocaleDateString(), new Date().toLocaleTimeString(), 'Loading target page:', currentPage, '⌛')
+    await page.goto('https://www.instagram.com/' + currentPage)
     await page.waitForSelector(selectors.followers)
     await page.click(selectors.followers)
     selectors.window = await Promise.race([
@@ -52,8 +52,8 @@ while (true) {
     if (minskippage != 0 || maxskippage != 0) {
       setTimeout(() => {
         keepCurrentPage = false
-        console.log(new Date().toLocaleTimeString(), 'Skipping page:', currentPage, '⏩⏩⏩')
-      }, getRandomBetween(minskippage, maxskippage))
+        console.log(new Date().toLocaleDateString(), new Date().toLocaleTimeString(), 'Skipping page:', currentPage, '⏩⏩⏩')
+      }, utils.getRandomBetween(minskippage, maxskippage))
     }
     keepCurrentPage = true
     while (keepCurrentPage) {
@@ -64,27 +64,24 @@ while (true) {
           return document.querySelectorAll(buttonsSelector)[skipCount].parentNode.parentNode.parentNode.children[1].children[0].children[0].children[0].innerText
         }, (selectors.window + ' ' + selectors.buttons), skipCount)
         let profilePage = await browser.newPage()
-        await page.setViewport(null)
-        await profilePage.goto('https://www.instagram.com/' + userName)
         await profilePage.setViewport(null)
+        await profilePage.goto('https://www.instagram.com/' + userName)
         await profilePage.waitForSelector(selectors.followButton)
         let status = await profilePage.evaluate((optionsButtonSelector) => document.querySelector(optionsButtonSelector).innerText, selectors.followButton)
         if (status == 'Follow Back') {
-          console.log(new Date().toLocaleTimeString(), 'Already following you, profile skiped:', userName, '⏩')
-          simulateInteraction(profilePage)
-          await new Promise((r) => { setTimeout(r, getRandomBetween(5000, 15000)) })
+          console.log(new Date().toLocaleDateString(), new Date().toLocaleTimeString(), 'Already follows you, skipped:', userName, '⏩')
+          await utils.simulateInteraction(5000, 15000, profilePage)
         } else {
-          console.log(new Date().toLocaleTimeString(), 'Next profile:',  userName, '👀🤖🔜🎯')
-          simulateInteraction(profilePage)
-          await new Promise((r) => { setTimeout(r, getRandomBetween(minfollow, maxfollow)) })
+          console.log(new Date().toLocaleDateString(), new Date().toLocaleTimeString(), 'Next profile:', userName, '👀🤖🔜🎯')
+          await utils.simulateInteraction(minfollow, maxfollow, profilePage)
           await profilePage.click(selectors.buttons)
-          console.log(new Date().toLocaleTimeString(), 'Follow request sent ✅')
-          await new Promise((r) => { setTimeout(r, getRandomBetween(3000, 5000)) })
+          console.log(new Date().toLocaleDateString(), new Date().toLocaleTimeString(), 'Follow request sent ✅')
+          await utils.delay(3000, 5000);
         }
         skipCount++
         await profilePage.close()
       } else {
-        console.log(new Date().toLocaleTimeString(), 'Updating profile list 🔄')
+        console.log(new Date().toLocaleDateString(), new Date().toLocaleTimeString(), 'Updating profile list 🔄')
         await page.evaluate((selector) => {
           const followersWindow = document.querySelector(selector)
           followersWindow.scrollTop = followersWindow.scrollHeight
@@ -94,19 +91,13 @@ while (true) {
             return document.querySelectorAll(selector).length > count
           }, { timeout: 15000 }, selectors.profile, loadedProfiles.length)
         } catch {
+          console.log(new Date().toLocaleDateString(), new Date().toLocaleTimeString(), 'No more profiles found at this page 🔀🆕✅')
           keepCurrentPage = false
         }
       }
     }
-
   } catch (e) {
-    console.log(new Date().toLocaleTimeString(), 'ERROR: Something went wrong, restarting script❌❌❌')
-    console.error(e)
-
-    let pages = await browser.pages()
-    while (pages.length > 1) {
-      await pages[pages.length - 1].close()
-      pages = await browser.pages()
-    }
+    utils.handleErrors(e, utils.hasReceivedStopMessage(), [profilePage])
   }
 }
+utils.stopBot();

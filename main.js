@@ -1,21 +1,10 @@
 import { dialog, ipcMain, app, BrowserWindow } from 'electron'
 import fs from 'fs'
-import { spawn } from 'child_process'
+import { fork } from 'child_process'
 import login from './bots/login.js'
-
-let cookies
-const cookiesPath = './cookies.json'
-if (fs.existsSync(cookiesPath)) {
-  const data = fs.readFileSync(cookiesPath)
-  cookies = JSON.parse(data)
-}
-
-let settings
-const settingsPath = './settings.json'
-if (fs.existsSync(settingsPath)) {
-  const data = fs.readFileSync(settingsPath)
-  settings = JSON.parse(data)
-}
+import { loadCookies, loadSettings } from './bots/utils.js'
+let cookies = loadCookies()
+let settings = loadSettings()
 
 let mainWindow
 const createWindow = () => {
@@ -58,7 +47,7 @@ ipcMain.handle('login-form', async (event, username, password) => {
   try {
     const newCookies = await login(username, password)
     if (newCookies) {
-      fs.writeFileSync(cookiesPath, JSON.stringify(newCookies, null, 2))
+      fs.writeFileSync('./bots/cookies.json', JSON.stringify(newCookies, null, 2))
       cookies = newCookies
       dialog.showMessageBox({
         type: 'info',
@@ -78,7 +67,7 @@ ipcMain.handle('login-form', async (event, username, password) => {
 })
 
 ipcMain.handle('save-settings', (event, data) => {
-  fs.writeFileSync(settingsPath, JSON.stringify(data, null, 2))
+  fs.writeFileSync('./bots/settings.json', JSON.stringify(data, null, 2))
   settings = data
 })
 
@@ -89,7 +78,7 @@ for (const bot of bots) {
   processes[bot] = null
   ipcMain.on(`toggle-${bot}`, (event, shouldStart) => {
     if (shouldStart) {
-      processes[bot] = spawn('node', [`./bots/${bot}.js`, JSON.stringify(settings)])
+      processes[bot] = fork(`./bots/${bot}.js`, { stdio: ['pipe', 'pipe', 'pipe', 'ipc'] })
       processes[bot].stdout.on('data', (data) => {
         mainWindow.webContents.send(`update-${bot}`, data.toString())
       })
@@ -102,8 +91,11 @@ for (const bot of bots) {
       })
     } else {
       if (processes[bot]) {
-        processes[bot].kill()
-        processes[bot] = null
+        processes[bot].send({ type: 'stop' });
+        processes[bot].once('exit', () => {
+          processes[bot] = null;
+          mainWindow.webContents.send(`${bot}-closed`);
+        });
       }
     }
   })

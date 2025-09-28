@@ -1,13 +1,10 @@
-import loadLoggedInPage from './loadLoggedInPage.js'
-import getRandomBetween from './getRandomBetween.js'
-import simulateInteraction from './simulateInteraction.js'
+import * as utils from './utils.js';
 
-const args = process.argv.slice(2)
-const settings = JSON.parse(args[0])
+utils.setupStopHandlers()
+const settings = utils.loadSettings()
 const username = settings.username
 const minunfollow = settings.minunfollow * 1000
-const maxunfollow = settings.minunfollow * 1000
-let continueScript = true
+const maxunfollow = settings.maxunfollow * 1000
 let loadedProfiles = []
 let unfollowedCount = 0
 let alreadyRequested = 0
@@ -19,20 +16,23 @@ const selectors = {
   openOptionsButton: 'div[class="_ap3a _aaco _aacw _aad6 _aade"]',
   windowButtons: 'div[class="x1i10hfl x1qjc9v5 xjbqb8w xjqpnuy xc5r6h4 xqeqjp1 x1phubyo x13fuv20 x18b5jzi x1q0q8m5 x1t7ytsu x972fbf x10w94by x1qhh985 x14e42zd x9f619 x1ypdohk xdl72j9 x2lah0s x3ct3a4 xdj266r x14z9mp xat24cr x1lziwak x2lwn1j xeuugli xexx8yu xyri2b x18d9i69 x1c1uobl x1n2onr6 x16tdsg8 x1hl2dhg xggy1nq x1ja2u2z x1t137rt x1q0g3np x87ps6o x1lku1pv x1a2a7pz x1qnrgzn x1cek8b2 xb10e19 x19rwo8q x1lliihq x193iq5w xh8yej3"]',
 }
-const page = await loadLoggedInPage()
-const browser = await page.browser()
 
-while (continueScript) {
+const browser = await utils.newBrowserInstance()
+const page = await browser.newPage()
+await page.setViewport(null)
+let profilePage
+
+while (!utils.hasReceivedStopMessage()) {
   try {
-    console.log(new Date().toLocaleTimeString(), 'Loading profile list⌛')
+    console.log(new Date().toLocaleDateString(), new Date().toLocaleTimeString(), 'Loading profile list⌛')
     await page.goto('https://www.instagram.com/' + username)
     await page.waitForSelector(selectors.followers)
     await page.click(selectors.followers)
     await page.waitForSelector(selectors.window)
     let i = 0
-    while (continueScript) {
+    while (!utils.hasReceivedStopMessage()) {
       loadedProfiles = await page.$$(selectors.profiles)
-      console.log(new Date().toLocaleTimeString(), loadedProfiles.length, 'profiles found🔍')
+      console.log(new Date().toLocaleDateString(), new Date().toLocaleTimeString(), loadedProfiles.length, 'profiles found🔍')
       for (; i < loadedProfiles.length; i++) {
         let status
         let nodesLength = await page.evaluate(el => el.childNodes.length == 1, loadedProfiles[i])
@@ -47,61 +47,52 @@ while (continueScript) {
             status = await profilePage.evaluate((openOptionsButtonSelector) => document.querySelector(openOptionsButtonSelector).innerText, selectors.openOptionsButton)
             await profilePage.click(selectors.openOptionsButton)
             if (status == 'Following') {
-              console.log(new Date().toLocaleTimeString(), 'Next profile:',  userName, '👀🤖🔜🎯')
-              simulateInteraction(profilePage)
-              await new Promise((r) => { setTimeout(r, getRandomBetween(minunfollow, maxunfollow)) })
+              console.log(new Date().toLocaleDateString(), new Date().toLocaleTimeString(), 'Next profile:', userName, '👀🤖🔜🎯')
+              await utils.simulateInteraction(minunfollow, maxunfollow, profilePage)
               await profilePage.waitForSelector(selectors.windowButtons)
               await profilePage.evaluate((selector) => {
                 let buttons = document.querySelectorAll(selector)
                 buttons[buttons.length - 1].click()
               }, selectors.windowButtons)
               unfollowedCount++
-              console.log(new Date().toLocaleTimeString(), 'Profile', i + 1, 'of', loadedProfiles.length, userName, 'unfollowed✅')
-              await new Promise((r) => { setTimeout(r, getRandomBetween(3000, 5000)) })
+              console.log(new Date().toLocaleDateString(), new Date().toLocaleTimeString(), 'Profile', i + 1, 'of', loadedProfiles.length, userName, 'unfollowed✅')
+              await utils.delay(3000, 5000);
             } else {
-              console.log(new Date().toLocaleTimeString(), 'Profile', i + 1, 'of', loadedProfiles.length, userName, 'already requested⛔')
+              console.log(new Date().toLocaleDateString(), new Date().toLocaleTimeString(), 'Profile', i + 1, 'of', loadedProfiles.length, userName, 'already requested⛔')
               alreadyRequested++
-              simulateInteraction(profilePage)
-              await new Promise((r) => { setTimeout(r, getRandomBetween(5000, 15000)) })
+              await utils.simulateInteraction(5000, 15000, profilePage)
             }
             await profilePage.close()
           } catch {
             await profilePage.close()
-            console.log(new Date().toLocaleTimeString(), 'Profile', i + 1, 'of', loadedProfiles.length, userName, 'invalid profile⛔')
+            console.log(new Date().toLocaleDateString(), new Date().toLocaleTimeString(), 'Profile', i + 1, 'of', loadedProfiles.length, userName, 'invalid profile⛔')
             invalidProfiles++
             i++ //don't know why invalid profiles are duplicated
           }
         } else {
-          console.log(new Date().toLocaleTimeString(), 'Profile', i + 1, 'of', loadedProfiles.length, userName, 'already not following⛔')
+          console.log(new Date().toLocaleDateString(), new Date().toLocaleTimeString(), 'Profile', i + 1, 'of', loadedProfiles.length, userName, 'already not following⛔')
         }
       }
-      console.log(new Date().toLocaleTimeString(), 'Updating profile list🔄')
+      console.log(new Date().toLocaleDateString(), new Date().toLocaleTimeString(), 'Updating profile list🔄')
       await page.evaluate((selector) => {
         const followersWindow = document.querySelector(selector)
         followersWindow.scrollTop = followersWindow.scrollHeight
       }, selectors.window)
-      await new Promise((r) => { setTimeout(r, getRandomBetween(15000, 30000)) })
+      await utils.delay(15000, 30000);
       try {
         await page.waitForFunction((selector, count) => {
           return document.querySelectorAll(selector).length > count
         }, { timeout: 15000 }, selectors.profiles, loadedProfiles.length)
       } catch {
-        continueScript = false
+        utils.setStopMessage(true)
       }
     }
   } catch (e) {
-    console.log(new Date().toLocaleTimeString(), 'ERROR: Something went wrong, restarting script❌❌❌')
-    console.error(e)
-
-    let pages = await browser.pages()
-    while (pages.length > 1) {
-      await pages[pages.length - 1].close()
-      pages = await browser.pages()
-    }
+    utils.handleErrors(e, utils.hasReceivedStopMessage(), [profilePage])
   }
 }
 console.log('ℹ️Unfollowed count:', unfollowedCount)
 console.log('ℹ️Already requested count:', alreadyRequested)
 console.log('ℹ️Invalid profiles count:', invalidProfiles)
-await browser.close()
 console.log('Script finished✅✅✅')
+utils.stopBot();
