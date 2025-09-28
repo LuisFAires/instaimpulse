@@ -27,6 +27,15 @@ function updateInterfaceStatusByButton(button, status) {
   status ? element.parentElement.classList.add('glow') : element.parentElement.classList.remove('glow')
 }
 
+async function checkConnection() {
+  try {
+    const response = await fetch("https://www.instagram.com", { mode: "no-cors" });
+    return true;
+  } catch (error) {
+    return false;
+  }
+}
+
 window.addEventListener('DOMContentLoaded', async () => {
 
   const formData = await ipcRenderer.invoke('load-settings')
@@ -80,8 +89,9 @@ const isRunning = {}
 for (const bot of bots) {
   buttons[bot] = document.getElementById(bot)
   buttons[bot].addEventListener('click', async () => {
+    const isConnected = await checkConnection()
     if (!isRunning[bot]) {
-      if (!navigator.onLine) {
+      if (!isConnected) {
         alert('Check your internet connection')
         return
       }
